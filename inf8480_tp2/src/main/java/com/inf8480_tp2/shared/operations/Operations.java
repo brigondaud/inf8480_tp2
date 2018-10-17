@@ -1,4 +1,4 @@
-package com.inf8480_tp2.shared.operation;
+package com.inf8480_tp2.shared.operations;
 
 /**
  * Methodes utilitaires pour effectuer les operations du TP2.
