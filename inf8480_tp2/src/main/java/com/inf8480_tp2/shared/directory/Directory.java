@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * Implements a simple version of LDAP directory for our system.
+ * Implements a simple version of LDAP directory for our system using JDNI.
  * This service is also used by the server to authenticate a a dispatcher.
  *
  * @author Baptiste Rigondaud & Loïc Poncet
@@ -18,27 +18,15 @@ import java.util.Map;
 public class Directory {
 
     private Map<String, String> dispatcherDirectory;
+    private DirContext serverDirectory;
 
-    public Directory() {
+    public Directory() throws NamingException {
         this.dispatcherDirectory = new HashMap<>();
-    }
-
-    /**
-     * Retrieves a list of all available computing servers in the system
-     */
-    public void getAvailableServers() {
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://localhost:389");
 
-        DirContext dirContext;
-
-        try {
-            dirContext = new InitialDirContext(env);
-            dirContext.close();
-        } catch (NamingException e) {
-            e.printStackTrace();
-        }
+        this.serverDirectory = new InitialDirContext(env);
     }
 
     /**
@@ -48,8 +36,44 @@ public class Directory {
      * @param password The password of the dispatcher to authenticate
      * @return A boolean indicating if the dispatcher has been successfully authenticated or not
      */
-    public boolean authenticate(String login, String password) {
+    public boolean authenticateDispatcher(String login, String password) {
         return this.dispatcherDirectory.containsKey(login) && this.dispatcherDirectory.get(login).equals(password);
+    }
+
+    /**
+     * Bind a Java Object to a name using Java Context bind operation
+     *
+     * @param name The name to bind
+     * @param object The Object to bind
+     */
+    public void bindObject(String name, Object object) throws NamingException {
+        this.serverDirectory.bind(name, object);
+    }
+
+    /**
+     * Retrieves a list of all available computing servers' name in the system
+     */
+    public void getAvailableServers() throws NamingException {
+        // TODO
+    }
+
+    /**
+     * Retrieves an Object from it has been bound to
+     *
+     * @param name The bound name of the Object to lookup
+     * @return The Object bound to name
+     */
+    public Object getReference(String name) throws NamingException {
+        return this.serverDirectory.lookup(name);
+    }
+
+    /**
+     * Remove binding for the specified name
+     *
+     * @param name The name of the Object to unbind
+     */
+    public void unbindObject(String name) throws NamingException {
+        this.serverDirectory.unbind(name);
     }
 
 }
