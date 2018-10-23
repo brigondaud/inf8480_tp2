@@ -15,4 +15,9 @@ public abstract class AtomicOperation extends Operation {
     public AtomicOperation(int parameter) {
         this.parameter = parameter;
     }
+
+    @Override
+    public int getNumberOfOperations() {
+        return 1;
+    }
 }

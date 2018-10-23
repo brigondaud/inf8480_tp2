@@ -51,5 +51,10 @@ public class Task extends Operation {
         }
         return result;
     }
+
+    @Override
+    public int getNumberOfOperations() {
+        return this.operations.size();
+    }
     
 }
