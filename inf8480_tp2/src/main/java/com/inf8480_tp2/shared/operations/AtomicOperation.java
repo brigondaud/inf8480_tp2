@@ -15,4 +15,13 @@ public abstract class AtomicOperation extends Operation {
     public AtomicOperation(int parameter) {
         this.parameter = parameter;
     }
+
+    /**
+     * Getter for the operation parameter.
+     * 
+     * @return Operation's parameter.
+     */
+    public int getParameter() {
+        return parameter;
+    }
 }
