@@ -1,7 +1,7 @@
 package com.inf8480_tp2.shared.operations;
 
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * A Task is made of several atomic operations.
@@ -13,7 +13,7 @@ public class Task extends Operation {
     /**
      * All the operations that must be computed by the task.
      */
-    Collection<AtomicOperation> operations;
+    Queue<AtomicOperation> operations;
     
     public Task() {
         this.operations = new LinkedList();
@@ -24,7 +24,7 @@ public class Task extends Operation {
      * 
      * @return Task's operations.
      */
-    public Collection<AtomicOperation> getOperations() {
+    public Queue<AtomicOperation> getOperations() {
         return this.operations;
     }
     
