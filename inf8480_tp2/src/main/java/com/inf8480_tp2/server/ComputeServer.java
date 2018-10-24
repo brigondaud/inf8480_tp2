@@ -1,6 +1,6 @@
 package com.inf8480_tp2.server;
 
-import com.inf8480_tp2.shared.directory.Directory;
+import com.inf8480_tp2.directory.ServerDirectory;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServerInterface;
@@ -78,8 +78,8 @@ public class ComputeServer implements ComputeServerInterface {
         try {
             String name = ""; // TODO assign a unique name for every server
             ComputeServerInterface stub = (ComputeServerInterface) UnicastRemoteObject.exportObject(this, 0);
-            Directory directory = new Directory();
-            directory.bindObject(name, stub);
+            ServerDirectory serverDirectory = new ServerDirectory();
+            serverDirectory.bindObject(name, stub);
             System.out.println("Compute server ready.");
         } catch (NamingException namingEx) {
             System.err.println("Naming exception happened");
