@@ -17,16 +17,14 @@ import java.util.Map;
  */
 public class Directory {
 
-    private Map<String, String> dispatcherDirectory;
-    private DirContext serverDirectory;
+    private DirContext directory;
 
     public Directory() throws NamingException {
-        this.dispatcherDirectory = new HashMap<>();
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://localhost:389");
 
-        this.serverDirectory = new InitialDirContext(env);
+        this.directory = new InitialDirContext(env);
     }
 
     /**
@@ -37,7 +35,8 @@ public class Directory {
      * @return A boolean indicating if the dispatcher has been successfully authenticated or not
      */
     public boolean authenticateDispatcher(String login, String password) {
-        return this.dispatcherDirectory.containsKey(login) && this.dispatcherDirectory.get(login).equals(password);
+        // TODO
+        return false;
     }
 
     /**
@@ -47,7 +46,7 @@ public class Directory {
      * @param object The Object to bind
      */
     public void bindObject(String name, Object object) throws NamingException {
-        this.serverDirectory.bind(name, object);
+        this.directory.bind(name, object);
     }
 
     /**
@@ -64,7 +63,7 @@ public class Directory {
      * @return The Object bound to name
      */
     public Object getReference(String name) throws NamingException {
-        return this.serverDirectory.lookup(name);
+        return this.directory.lookup(name);
     }
 
     /**
@@ -73,7 +72,7 @@ public class Directory {
      * @param name The name of the Object to unbind
      */
     public void unbindObject(String name) throws NamingException {
-        this.serverDirectory.unbind(name);
+        this.directory.unbind(name);
     }
 
 }
