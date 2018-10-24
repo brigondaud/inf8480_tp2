@@ -18,10 +18,10 @@ import java.util.Random;
  */
 public class ComputeServer implements ComputeServerInterface {
 
-    private int capacity;
+    private int serverCapacity;
 
     public ComputeServer(int capacity) {
-        this.capacity = capacity;
+        this.serverCapacity = capacity;
     }
 
     public static void main(String[] args) {
@@ -32,14 +32,20 @@ public class ComputeServer implements ComputeServerInterface {
 
     @Override
     public int getServerCapacity() throws RemoteException {
-        return this.capacity;
+        return this.serverCapacity;
+    }
+
+    @Override
+    public void setServerCapacity(int capacity) throws RemoteException {
+        this.serverCapacity = capacity;
     }
 
     @Override
     public Response executeOperation(Operation operation) throws RemoteException {
         Random random = new Random();
-        int randomNum = random.nextInt(100) + 1;
-        int refusalRate = this.refusalRate(operation);
+        //
+        float randomNum = random.nextFloat() * 100;
+        float refusalRate = this.refusalRate(operation);
         if (refusalRate > 0 && randomNum <= refusalRate) {
             // TODO
             // Tell the dispatcher the server refused the task
@@ -54,14 +60,14 @@ public class ComputeServer implements ComputeServerInterface {
      *
      * @return The refusal rate of the server for a specific task
      */
-    private int refusalRate(Operation operation) {
+    private float refusalRate(Operation operation) {
         int taskSize = operation.getNumberOfOperations();
-        if (taskSize < this.capacity) {
+        if (taskSize < this.serverCapacity) {
             return 0;
-        } else if (taskSize > 5 * this.capacity) {
+        } else if (taskSize > 5 * this.serverCapacity) {
             return 100;
         } else {
-            return ((taskSize - this.capacity) / (4 * this.capacity)) * 100;
+            return ((taskSize - this.serverCapacity) / (4 * this.serverCapacity)) * 100;
         }
     }
 

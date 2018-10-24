@@ -13,11 +13,18 @@ import java.rmi.RemoteException;
 public interface ComputeServerInterface extends Remote {
 
     /**
-     * Get the amount of work the server is able to perform at the moment
+     * Get the amount of mathematical operations the server is able to perform at the moment
      * @return The server's capacity
      * @throws java.rmi.RemoteException
      */
     int getServerCapacity() throws RemoteException;
+
+    /**
+     * Set the amount of mathematical operations the server is able to perform
+     *
+     * @param capacity The capacity to set
+     */
+    void setServerCapacity(int capacity) throws RemoteException;
 
     /**
      * Execute an operation on the server
