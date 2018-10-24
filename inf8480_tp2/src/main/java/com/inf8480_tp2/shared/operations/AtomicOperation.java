@@ -24,4 +24,9 @@ public abstract class AtomicOperation extends Operation {
     public int getParameter() {
         return parameter;
     }
+
+    @Override
+    public int getNumberOfOperations() {
+        return 1;
+    }
 }
