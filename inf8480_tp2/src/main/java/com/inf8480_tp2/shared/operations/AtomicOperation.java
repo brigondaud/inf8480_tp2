@@ -16,6 +16,15 @@ public abstract class AtomicOperation extends Operation {
         this.parameter = parameter;
     }
 
+    /**
+     * Getter for the operation parameter.
+     * 
+     * @return Operation's parameter.
+     */
+    public int getParameter() {
+        return parameter;
+    }
+
     @Override
     public int getNumberOfOperations() {
         return 1;

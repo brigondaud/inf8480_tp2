@@ -27,13 +27,8 @@ public class OperationsReader {
      * 
      * @param operationsFilePath The file containing the operations.
      */
-    public OperationsReader(String operationsFilePath) {
-        try {
-            this.reader = new BufferedReader(new FileReader(operationsFilePath));
-        } catch (FileNotFoundException ex) {
-            System.err.println("Unable to open the operations file.");
-            System.exit(1);
-        }
+    public OperationsReader(String operationsFilePath) throws FileNotFoundException {
+        this.reader = new BufferedReader(new FileReader(operationsFilePath));
     }
 
     /**
@@ -57,8 +52,10 @@ public class OperationsReader {
                     default:
                         // Do nothing.
                         // TODO: throw exception instead ?
-                }      
+                }
+                line = reader.readLine();
             }
+            reader.close();
         } catch (IOException ex) {
             System.err.println("Unable to read the operations file.");
         }
