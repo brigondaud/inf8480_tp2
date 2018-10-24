@@ -24,6 +24,10 @@ public class OptimalRepartitionStrategy implements RepartitionStrategy {
     public OptimalRepartitionStrategy(int capacity) {
         setCapacity(capacity);
     }
+
+    public OptimalRepartitionStrategy() {
+        this(1);
+    }
     
     /**
      * Setter for the strategy capacity.

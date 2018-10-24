@@ -36,7 +36,7 @@ public class OperationsReader {
      * 
      * @param buffer The buffer to fill with the operations.
      */
-    public void createOperations(Collection<AtomicOperation> buffer) {
+    public void createOperations(Collection buffer) {
         try {
             String line = reader.readLine();
             while(line != null) {
