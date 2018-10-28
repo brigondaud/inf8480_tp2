@@ -24,14 +24,17 @@ import java.util.*;
  */
 public class ServerDirectory implements Directory {
 
+    private static final String rootName = "o=PolyMTL";
+    private static final String serverRootName = "ou=Servers";
+
     private DirContext directory;
     private Map<String, String> dispatcherDirectory;
 
     public ServerDirectory() throws NamingException {
         this.dispatcherDirectory = new HashMap<>();
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://localhost:389");
+        env.put(Context.PROVIDER_URL, "ldap://localhost:389/" + rootName);
 
         this.directory = new InitialDirContext(env);
     }
@@ -63,12 +66,12 @@ public class ServerDirectory implements Directory {
 
     @Override
     public void bindObject(String name, Object object) throws NamingException {
-        this.directory.bind(name, object);
+        this.directory.bind("cn=" + name + "," + serverRootName, object);
     }
 
     @Override
     public Collection<ComputeServerInterface> getAvailableServers() throws NamingException {
-        NamingEnumeration<SearchResult> searchResultEnumeration = this.directory.search("TODO", null);
+        NamingEnumeration<SearchResult> searchResultEnumeration = this.directory.search(serverRootName, null);
         Collection<ComputeServerInterface> res = new LinkedList<>();
         while (searchResultEnumeration.hasMore()) {
             SearchResult searchResult = searchResultEnumeration.next();

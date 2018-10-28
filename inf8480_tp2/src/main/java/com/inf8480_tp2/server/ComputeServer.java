@@ -1,12 +1,16 @@
 package com.inf8480_tp2.server;
 
 import com.inf8480_tp2.directory.ServerDirectory;
+import com.inf8480_tp2.shared.directory.Directory;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServerInterface;
 
 import javax.naming.NamingException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
@@ -16,18 +20,36 @@ import java.util.Random;
  *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
-public class ComputeServer implements ComputeServerInterface {
+public class ComputeServer extends UnicastRemoteObject implements ComputeServerInterface {
 
     private int serverCapacity;
 
-    public ComputeServer(int capacity) {
+    public ComputeServer(int capacity) throws RemoteException {
         this.serverCapacity = capacity;
     }
 
     public static void main(String[] args) {
-        int serverCapacity = Integer.valueOf(args[0]);
-        ComputeServer server = new ComputeServer(serverCapacity);
-        server.run();
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new SecurityManager());
+        }
+        try {
+            int serverCapacity = Integer.valueOf(args[0]);
+            ComputeServerInterface server = new ComputeServer(serverCapacity);
+            String name = ""; // TODO assign a unique name for every server
+            Registry registry = LocateRegistry.getRegistry();
+            Directory serverDirectory = (Directory) registry.lookup("Directory");
+            serverDirectory.bindObject(name, server);
+            System.out.println("Compute server ready.");
+        } catch (NamingException namingEx) {
+            System.err.println("Naming exception happened");
+            namingEx.printStackTrace();
+        } catch (RemoteException e) {
+            System.err.println("Remote exception happened during Server creation");
+            e.printStackTrace();
+        } catch (NotBoundException e) {
+            System.err.println("NotBoundException happened: ");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -68,25 +90,6 @@ public class ComputeServer implements ComputeServerInterface {
             return 100;
         } else {
             return ((taskSize - this.serverCapacity) / (4 * this.serverCapacity)) * 100;
-        }
-    }
-
-    private void run() {
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
-        try {
-            String name = ""; // TODO assign a unique name for every server
-            ComputeServerInterface stub = (ComputeServerInterface) UnicastRemoteObject.exportObject(this, 0);
-            ServerDirectory serverDirectory = new ServerDirectory();
-            serverDirectory.bindObject(name, stub);
-            System.out.println("Compute server ready.");
-        } catch (NamingException namingEx) {
-            System.err.println("Naming exception happened");
-            namingEx.printStackTrace();
-        } catch (Exception e) {
-            System.err.println("Server exception");
-            e.printStackTrace();
         }
     }
 
