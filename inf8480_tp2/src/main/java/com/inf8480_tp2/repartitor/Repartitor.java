@@ -2,6 +2,7 @@ package com.inf8480_tp2.repartitor;
 
 import com.inf8480_tp2.shared.operations.AtomicOperation;
 import com.inf8480_tp2.shared.operations.reader.OperationsReader;
+
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.LinkedList;

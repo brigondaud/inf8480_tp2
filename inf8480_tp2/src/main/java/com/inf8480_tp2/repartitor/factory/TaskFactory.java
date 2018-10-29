@@ -4,6 +4,7 @@ import com.inf8480_tp2.repartitor.strategy.OptimalRepartitionStrategy;
 import com.inf8480_tp2.repartitor.strategy.RepartitionStrategy;
 import com.inf8480_tp2.shared.operations.AtomicOperation;
 import com.inf8480_tp2.shared.operations.Task;
+
 import java.util.Queue;
 
 /**

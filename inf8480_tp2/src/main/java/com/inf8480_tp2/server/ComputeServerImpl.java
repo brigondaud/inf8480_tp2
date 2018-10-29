@@ -1,12 +1,10 @@
 package com.inf8480_tp2.server;
 
-import com.inf8480_tp2.directory.ServerDirectory;
-import com.inf8480_tp2.shared.directory.Directory;
+import com.inf8480_tp2.shared.directory.NameDirectory;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.Response;
-import com.inf8480_tp2.shared.server.ComputeServerInterface;
+import com.inf8480_tp2.shared.server.ComputeServer;
 
-import javax.naming.NamingException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -20,11 +18,11 @@ import java.util.Random;
  *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
-public class ComputeServer extends UnicastRemoteObject implements ComputeServerInterface {
+public class ComputeServerImpl extends UnicastRemoteObject implements ComputeServer {
 
     private int serverCapacity;
 
-    public ComputeServer(int capacity) throws RemoteException {
+    public ComputeServerImpl(int capacity) throws RemoteException {
         this.serverCapacity = capacity;
     }
 
@@ -34,38 +32,35 @@ public class ComputeServer extends UnicastRemoteObject implements ComputeServerI
         }
         try {
             int serverCapacity = Integer.valueOf(args[0]);
-            ComputeServerInterface server = new ComputeServer(serverCapacity);
-            String name = ""; // TODO assign a unique name for every server
-            Registry registry = LocateRegistry.getRegistry();
-            Directory serverDirectory = (Directory) registry.lookup("Directory");
-            serverDirectory.bindObject(name, server);
+            String directoryAdress = args[1];
+            ComputeServer server = new ComputeServerImpl(serverCapacity);
+            Registry registry = LocateRegistry.getRegistry(directoryAdress);
+            NameDirectory nameDirectory = (NameDirectory) registry.lookup("NameDirectory");
+            // A reference to the server is bound to the directory
+            nameDirectory.bind(server);
             System.out.println("Compute server ready.");
-        } catch (NamingException namingEx) {
-            System.err.println("Naming exception happened");
-            namingEx.printStackTrace();
         } catch (RemoteException e) {
             System.err.println("Remote exception happened during Server creation");
             e.printStackTrace();
         } catch (NotBoundException e) {
-            System.err.println("NotBoundException happened: ");
+            System.err.println("NotBoundException happened during Server creation: ");
             e.printStackTrace();
         }
     }
 
     @Override
-    public int getServerCapacity() throws RemoteException {
+    public int getServerCapacity() {
         return this.serverCapacity;
     }
 
     @Override
-    public void setServerCapacity(int capacity) throws RemoteException {
+    public void setServerCapacity(int capacity) {
         this.serverCapacity = capacity;
     }
 
     @Override
-    public Response executeOperation(Operation operation) throws RemoteException {
+    public Response executeOperation(Operation operation) {
         Random random = new Random();
-        //
         float randomNum = random.nextFloat() * 100;
         float refusalRate = this.refusalRate(operation);
         if (refusalRate > 0 && randomNum <= refusalRate) {

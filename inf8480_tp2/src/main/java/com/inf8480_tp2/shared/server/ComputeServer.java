@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
  *
  * @author Baptiste Rigondaud & Loïc Poncet
  */
-public interface ComputeServerInterface extends Remote {
+public interface ComputeServer extends Remote {
 
     /**
      * Get the amount of mathematical operations the server is able to perform at the moment
