@@ -10,12 +10,12 @@ import java.rmi.RemoteException;
  *
  * @author Baptiste Rigondaud & Loïc Poncet
  */
-public interface ComputeServerInterface extends Remote {
+public interface ComputeServer extends Remote {
 
     /**
      * Get the amount of mathematical operations the server is able to perform at the moment
+     *
      * @return The server's capacity
-     * @throws java.rmi.RemoteException
      */
     int getServerCapacity() throws RemoteException;
 
@@ -28,9 +28,9 @@ public interface ComputeServerInterface extends Remote {
 
     /**
      * Execute an operation on the server
+     *
      * @param operation The operation to execute
      * @return A Response object
-     * @throws java.rmi.RemoteException
      */
     Response executeOperation(Operation operation) throws RemoteException;
 

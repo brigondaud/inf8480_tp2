@@ -1,8 +1,8 @@
 package com.inf8480_tp2.shared.operations.reader;
 
-import com.inf8480_tp2.shared.operations.AtomicOperation;
 import com.inf8480_tp2.shared.operations.Pell;
 import com.inf8480_tp2.shared.operations.Prime;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
