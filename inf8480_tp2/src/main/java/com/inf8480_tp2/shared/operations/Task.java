@@ -13,7 +13,7 @@ public class Task extends Operation {
     /**
      * All the operations that must be computed by the task.
      */
-    Queue<AtomicOperation> operations;
+    Queue<Operation> operations;
     
     public Task() {
         this.operations = new LinkedList();
@@ -24,7 +24,7 @@ public class Task extends Operation {
      * 
      * @return Task's operations.
      */
-    public Queue<AtomicOperation> getOperations() {
+    public Queue<Operation> getOperations() {
         return this.operations;
     }
     
@@ -33,7 +33,7 @@ public class Task extends Operation {
      * 
      * @param operation The operation to add to the task.
      */
-    public void addOperation(AtomicOperation operation) {
+    public void addOperation(Operation operation) {
         this.operations.add(operation);
     }
 
@@ -45,7 +45,7 @@ public class Task extends Operation {
     @Override
     public int execute() {
         int result = 0;
-        for(AtomicOperation operation: operations) {
+        for(Operation operation: operations) {
             result += operation.execute();
             result %= 4000;
         }

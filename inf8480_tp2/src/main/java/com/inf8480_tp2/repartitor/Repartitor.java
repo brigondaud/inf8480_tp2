@@ -1,6 +1,6 @@
 package com.inf8480_tp2.repartitor;
 
-import com.inf8480_tp2.shared.operations.AtomicOperation;
+import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.operations.reader.OperationsReader;
 
 import java.io.FileNotFoundException;
@@ -19,7 +19,7 @@ public class Repartitor {
      * The operation buffer contains every operation a repartitor has to
      * distribute.
      */
-    Collection<AtomicOperation> operationBuffer;
+    Collection<Operation> operationBuffer;
     
     /**
      * Launches a repartitor that connects to the computation servers and
