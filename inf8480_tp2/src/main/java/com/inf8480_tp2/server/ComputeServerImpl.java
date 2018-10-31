@@ -4,6 +4,7 @@ import com.inf8480_tp2.shared.directory.NameDirectory;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServer;
+import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -31,16 +32,21 @@ public class ComputeServerImpl extends UnicastRemoteObject implements ComputeSer
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            int serverCapacity = Integer.valueOf(args[0]);
-            String directoryAdress = args[1];
+            String serverAddress = args[0];
+            int serverCapacity = Integer.valueOf(args[1]);
+            String directoryAddress = args[2];
             ComputeServer server = new ComputeServerImpl(serverCapacity);
-            Registry registry = LocateRegistry.getRegistry(directoryAdress);
-            NameDirectory nameDirectory = (NameDirectory) registry.lookup("NameDirectory");
-            // A reference to the server is bound to the directory
-            nameDirectory.bind(server);
+            Registry directoryRegistry = LocateRegistry.getRegistry(directoryAddress);
+            NameDirectory nameDirectory = (NameDirectory) directoryRegistry.lookup("NameDirectory");
+            // A ServerInfo is bound to the name directory
+            ServerInfo serverInfo = new ServerInfo(serverAddress, serverCapacity);
+            nameDirectory.bind(serverInfo);
+            // Then a stub is bound to a registry locally
+            Registry serverRegistry = LocateRegistry.getRegistry(serverAddress);
+            serverRegistry.rebind("ComputeServer", server);
             System.out.println("Compute server ready.");
         } catch (RemoteException e) {
-            System.err.println("Remote exception happened during Server creation");
+            System.err.println("Remote exception happened during Server creation: ");
             e.printStackTrace();
         } catch (NotBoundException e) {
             System.err.println("NotBoundException happened during Server creation: ");

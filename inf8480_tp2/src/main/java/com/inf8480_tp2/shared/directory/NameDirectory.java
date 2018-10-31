@@ -1,6 +1,7 @@
 package com.inf8480_tp2.shared.directory;
 
 import com.inf8480_tp2.shared.server.ComputeServer;
+import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -26,14 +27,14 @@ public interface NameDirectory extends Remote {
     /**
      * Set the specified server available for computations.
      *
-     * @param server The server ref to bind
+     * @param serverInfo A ServerInfo instance containing IP Address and capacity of the server to bind
      */
-    void bind(ComputeServer server) throws RemoteException;
+    void bind(ServerInfo serverInfo) throws RemoteException;
 
     /**
      * Retrieves a list of all available computing servers references in the system.
      */
-    Collection<ComputeServer> getAvailableServers() throws RemoteException;
+    Collection<ServerInfo> getAvailableServers() throws RemoteException;
 
     /**
      * Register a Dispatcher in the directory
@@ -46,8 +47,8 @@ public interface NameDirectory extends Remote {
     /**
      * Remove availability of a compute server
      *
-     * @param server The server ref to unbind
+     * @param serverInfo A ServerInfo instance containing IP Address and capacity of the server to bind
      */
-    void unbind(ComputeServer server) throws RemoteException;
+    void unbind(ServerInfo serverInfo) throws RemoteException;
 
 }

@@ -2,7 +2,7 @@ package com.inf8480_tp2.directory;
 
 
 import com.inf8480_tp2.shared.directory.NameDirectory;
-import com.inf8480_tp2.shared.server.ComputeServer;
+import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,11 +18,11 @@ import java.util.*;
  */
 public class NameDirectoryImpl implements NameDirectory {
 
-    private Collection<ComputeServer> serverDirectory;
+    private Collection<ServerInfo> serverDirectory;
     private Map<String, String> dispatcherDirectory;
 
     public NameDirectoryImpl() {
-        this.serverDirectory = new ArrayList<>();
+        this.serverDirectory = new HashSet<>();
         this.dispatcherDirectory = new HashMap<>();
     }
 
@@ -50,25 +50,34 @@ public class NameDirectoryImpl implements NameDirectory {
     }
 
     @Override
-    public void bind(ComputeServer server) {
-        this.serverDirectory.add(server);
+    public synchronized void bind(ServerInfo serverInfo) {
+        /*
+         * If an element with the same IP Address is already present in the collection,
+         * it must be remove after the add is performed. Otherwise, nothing will happen and
+         * the server info will not be updated
+         */
+        this.serverDirectory.remove(serverInfo);
+        this.serverDirectory.add(serverInfo);
     }
 
     @Override
-    public Collection<ComputeServer> getAvailableServers() {
+    public synchronized Collection<ServerInfo> getAvailableServers() {
         return this.serverDirectory;
     }
 
 
     @Override
-    public void registerDispatcher(String login, String password) {
-        // TODO
-        this.dispatcherDirectory.put(login, password);
+    public synchronized void registerDispatcher(String login, String password) {
+        if (this.dispatcherDirectory.containsKey(login)) {
+            // TODO ErrorResponse
+        } else {
+            this.dispatcherDirectory.put(login, password);
+        }
     }
 
     @Override
-    public void unbind(ComputeServer server) {
-        this.serverDirectory.remove(server);
+    public synchronized void unbind(ServerInfo serverInfo) {
+        this.serverDirectory.remove(serverInfo);
     }
 
 }
