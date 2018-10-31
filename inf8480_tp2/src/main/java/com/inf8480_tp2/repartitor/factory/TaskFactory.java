@@ -2,7 +2,7 @@ package com.inf8480_tp2.repartitor.factory;
 
 import com.inf8480_tp2.repartitor.strategy.OptimalRepartitionStrategy;
 import com.inf8480_tp2.repartitor.strategy.RepartitionStrategy;
-import com.inf8480_tp2.shared.operations.AtomicOperation;
+import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.operations.Task;
 
 import java.util.Queue;
@@ -50,9 +50,11 @@ public class TaskFactory {
      * @param operationBuffer The buffer containing the operations.
      * @return The created task.
      */
-    public Task buildTask(Queue<AtomicOperation> operationBuffer) {
+    public Task buildTask(Queue<Operation> operationBuffer) {
         Task task = new Task();
         for(int i = 0; i < strategy.computeSize(); i++) {
+            if(operationBuffer.isEmpty())
+                return task;
             task.addOperation(operationBuffer.poll());            
         }
         return task;
