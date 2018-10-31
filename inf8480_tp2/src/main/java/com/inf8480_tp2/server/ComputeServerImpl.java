@@ -2,14 +2,15 @@ package com.inf8480_tp2.server;
 
 import com.inf8480_tp2.shared.directory.NameDirectory;
 import com.inf8480_tp2.shared.operations.Operation;
+import com.inf8480_tp2.shared.parser.OptionParser;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServer;
-import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
@@ -19,11 +20,12 @@ import java.util.Random;
  *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
-public class ComputeServerImpl extends UnicastRemoteObject implements ComputeServer {
+public class ComputeServerImpl implements ComputeServer {
 
     private int serverCapacity;
+    private NameDirectory nameDirectory;
 
-    public ComputeServerImpl(int capacity) throws RemoteException {
+    public ComputeServerImpl(int capacity) {
         this.serverCapacity = capacity;
     }
 
@@ -32,18 +34,21 @@ public class ComputeServerImpl extends UnicastRemoteObject implements ComputeSer
             System.setSecurityManager(new SecurityManager());
         }
         try {
-            String serverAddress = args[0];
-            int serverCapacity = Integer.valueOf(args[1]);
-            String directoryAddress = args[2];
+            OptionParser parser = new OptionParser(args);
+            int serverCapacity = parser.getServerCapacity();
+            String directoryAddress = parser.getDirectoryAddress();
+            int serverPort = parser.getServerPort();
+            int directoryPort = parser.getDirectoryPort();
             ComputeServer server = new ComputeServerImpl(serverCapacity);
-            Registry directoryRegistry = LocateRegistry.getRegistry(directoryAddress);
+            // Get the RMI Registry associated to the directory and lookup the directory stub
+            Registry directoryRegistry = LocateRegistry.getRegistry(directoryAddress, directoryPort);
             NameDirectory nameDirectory = (NameDirectory) directoryRegistry.lookup("NameDirectory");
-            // A ServerInfo is bound to the name directory
-            ServerInfo serverInfo = new ServerInfo(serverAddress, serverCapacity);
-            nameDirectory.bind(serverInfo);
+            ((ComputeServerImpl) server).nameDirectory = nameDirectory;
+            nameDirectory.bind(serverCapacity, serverPort);
             // Then a stub is bound to a registry locally
-            Registry serverRegistry = LocateRegistry.getRegistry(serverAddress);
-            serverRegistry.rebind("ComputeServer", server);
+            ComputeServer stub = (ComputeServer) UnicastRemoteObject.exportObject(server, serverPort + 1);
+            Registry serverRegistry = LocateRegistry.getRegistry(serverPort);
+            serverRegistry.rebind("ComputeServer", stub);
             System.out.println("Compute server ready.");
         } catch (RemoteException e) {
             System.err.println("Remote exception happened during Server creation: ");
@@ -51,21 +56,18 @@ public class ComputeServerImpl extends UnicastRemoteObject implements ComputeSer
         } catch (NotBoundException e) {
             System.err.println("NotBoundException happened during Server creation: ");
             e.printStackTrace();
+        } catch (ServerNotActiveException e) {
+            System.err.println("An exception happened during object binding to name directory: ");
+            e.printStackTrace();
         }
     }
 
     @Override
-    public int getServerCapacity() {
-        return this.serverCapacity;
-    }
-
-    @Override
-    public void setServerCapacity(int capacity) {
-        this.serverCapacity = capacity;
-    }
-
-    @Override
-    public Response executeOperation(Operation operation) {
+    public Response executeOperation(Operation operation, String login, String password) throws RemoteException {
+        if (!this.nameDirectory.authenticateDispatcher(login, password)) {
+            // TODO Return ErrorResponse
+            return null;
+        }
         Random random = new Random();
         float randomNum = random.nextFloat() * 100;
         float refusalRate = this.refusalRate(operation);

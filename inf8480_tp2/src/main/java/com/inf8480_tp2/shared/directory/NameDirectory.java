@@ -1,10 +1,10 @@
 package com.inf8480_tp2.shared.directory;
 
-import com.inf8480_tp2.shared.server.ComputeServer;
 import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.ServerNotActiveException;
 import java.util.Collection;
 
 /**
@@ -27,9 +27,10 @@ public interface NameDirectory extends Remote {
     /**
      * Set the specified server available for computations.
      *
-     * @param serverInfo A ServerInfo instance containing IP Address and capacity of the server to bind
+     * @param serverCapacity
+     * @param serverPort
      */
-    void bind(ServerInfo serverInfo) throws RemoteException;
+    void bind(int serverCapacity, int serverPort) throws RemoteException, ServerNotActiveException;
 
     /**
      * Retrieves a list of all available computing servers references in the system.

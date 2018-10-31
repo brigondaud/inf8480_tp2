@@ -2,11 +2,14 @@ package com.inf8480_tp2.directory;
 
 
 import com.inf8480_tp2.shared.directory.NameDirectory;
+import com.inf8480_tp2.shared.parser.OptionParser;
 import com.inf8480_tp2.shared.server.ServerInfo;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RemoteServer;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
@@ -32,10 +35,11 @@ public class NameDirectoryImpl implements NameDirectory {
         }
         try {
             String name = "NameDirectory";
-            String hostName = args[0];
+            OptionParser parser = new OptionParser(args);
+            int port = parser.getDirectoryPort();
             NameDirectory serverDirectory = new NameDirectoryImpl();
-            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, 0);
-            Registry registry = LocateRegistry.getRegistry(hostName);
+            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, port + 1);
+            Registry registry = LocateRegistry.getRegistry(port);
             registry.rebind(name, stub);
             System.out.println("NameDirectory is ready.");
         } catch (RemoteException e) {
@@ -50,7 +54,9 @@ public class NameDirectoryImpl implements NameDirectory {
     }
 
     @Override
-    public synchronized void bind(ServerInfo serverInfo) {
+    public synchronized void bind(int serverCapacity, int serverPort) throws ServerNotActiveException {
+        System.out.println(RemoteServer.getClientHost());
+        ServerInfo serverInfo = new ServerInfo(RemoteServer.getClientHost(), serverCapacity, serverPort);
         /*
          * If an element with the same IP Address is already present in the collection,
          * it must be remove after the add is performed. Otherwise, nothing will happen and
