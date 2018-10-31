@@ -52,6 +52,8 @@ public class TaskFactory {
     public Task buildTask(Queue<AtomicOperation> operationBuffer) {
         Task task = new Task();
         for(int i = 0; i < strategy.computeSize(); i++) {
+            if(operationBuffer.isEmpty())
+                return task;
             task.addOperation(operationBuffer.poll());            
         }
         return task;
