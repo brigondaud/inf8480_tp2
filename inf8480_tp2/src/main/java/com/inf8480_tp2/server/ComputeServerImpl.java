@@ -3,6 +3,9 @@ package com.inf8480_tp2.server;
 import com.inf8480_tp2.shared.directory.NameDirectory;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.parser.OptionParser;
+import com.inf8480_tp2.shared.response.ComputeResponse;
+import com.inf8480_tp2.shared.response.InvalidCredentialsResponse;
+import com.inf8480_tp2.shared.response.OutOfCapacityResponse;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServer;
 
@@ -65,19 +68,16 @@ public class ComputeServerImpl implements ComputeServer {
     @Override
     public Response executeOperation(Operation operation, String login, String password) throws RemoteException {
         if (!this.nameDirectory.authenticateDispatcher(login, password)) {
-            // TODO Return ErrorResponse
-            return null;
+            return new InvalidCredentialsResponse();
         }
         Random random = new Random();
         float randomNum = random.nextFloat() * 100;
         float refusalRate = this.refusalRate(operation);
         if (refusalRate > 0 && randomNum <= refusalRate) {
-            // TODO
-            // Tell the dispatcher the server refused the task
-        } else {
-            operation.execute();
+            return new OutOfCapacityResponse();
         }
-        return null;
+        int result = operation.execute();
+        return new ComputeResponse(result);
     }
 
     /**

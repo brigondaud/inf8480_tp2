@@ -1,6 +1,9 @@
 package com.inf8480_tp2.shared.server;
 
 /**
+ * A class containing all the necessary information about a compute server.
+ * Each server will bind it's information through NameDirectory using this class
+ *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
 public class ServerInfo {
@@ -9,10 +12,14 @@ public class ServerInfo {
     private int capacity;
     private int port;
 
-    public ServerInfo(String ip, int capacity, int port) {
-        this.ipAddress = ip;
-        this.capacity = capacity;
+    public ServerInfo(String address, int port) {
+        this.ipAddress = address;
         this.port = port;
+    }
+
+    public ServerInfo(String address, int capacity, int port) {
+        this(address, port);
+        this.capacity = capacity;
     }
 
     public String getIpAdress() {
@@ -45,7 +52,7 @@ public class ServerInfo {
             return false;
         }
         ServerInfo other = (ServerInfo) obj;
-        return this.ipAddress.equals(other.ipAddress) && this.port == other.getPort();
+        return this.ipAddress.equals(other.getIpAdress()) && this.port == other.getPort();
     }
 
     @Override

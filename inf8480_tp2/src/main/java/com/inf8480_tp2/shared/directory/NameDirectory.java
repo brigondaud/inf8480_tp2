@@ -48,8 +48,9 @@ public interface NameDirectory extends Remote {
     /**
      * Remove availability of a compute server
      *
-     * @param serverInfo A ServerInfo instance containing IP Address and capacity of the server to bind
+     * @param serverAddress The IP Adress of the server to unbind
+     * @param serverPort The port of the server to unbind
      */
-    void unbind(ServerInfo serverInfo) throws RemoteException;
+    void unbind(String serverAddress, int serverPort) throws RemoteException;
 
 }

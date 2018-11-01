@@ -6,6 +6,9 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 /**
+ * Utility class used to parse command line arguments passed to the different programs
+ * of the system
+ *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
 public class OptionParser {
@@ -78,6 +81,10 @@ public class OptionParser {
         this.serverCapacity = serverCapacity;
     }
 
+    /**
+     * Do the parsing of the command line arguments
+     * @param args
+     */
     public void parseOptions(String args[]) {
         String options = Arrays.stream(args).collect(Collectors.joining(" "));
         Scanner scanner = new Scanner(options);

@@ -74,16 +74,13 @@ public class NameDirectoryImpl implements NameDirectory {
 
     @Override
     public synchronized void registerDispatcher(String login, String password) {
-        if (this.dispatcherDirectory.containsKey(login)) {
-            // TODO ErrorResponse
-        } else {
-            this.dispatcherDirectory.put(login, password);
-        }
+        this.dispatcherDirectory.put(login, password);
     }
 
     @Override
-    public synchronized void unbind(ServerInfo serverInfo) {
-        this.serverDirectory.remove(serverInfo);
+    public synchronized void unbind(String serverAddress, int serverPort) {
+        ServerInfo serverToRemove = new ServerInfo(serverAddress, serverPort);
+        this.serverDirectory.remove(serverToRemove);
     }
 
 }
