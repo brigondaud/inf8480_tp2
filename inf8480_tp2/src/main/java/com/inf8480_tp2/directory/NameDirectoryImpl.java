@@ -55,8 +55,8 @@ public class NameDirectoryImpl implements NameDirectory {
 
     @Override
     public synchronized void bind(int serverCapacity, int serverPort) throws ServerNotActiveException {
-        System.out.println(RemoteServer.getClientHost());
         ServerInfo serverInfo = new ServerInfo(RemoteServer.getClientHost(), serverCapacity, serverPort);
+        System.out.println(serverInfo);
         /*
          * If an element with the same IP Address is already present in the collection,
          * it must be remove after the add is performed. Otherwise, nothing will happen and

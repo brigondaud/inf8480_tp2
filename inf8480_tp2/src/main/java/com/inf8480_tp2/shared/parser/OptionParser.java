@@ -107,6 +107,7 @@ public class OptionParser {
                         this.setUnsafe();
                         break;
                     case "--corrupt":
+                        this.setUnsafe();
                         this.setCorruptRate(this.parseCorruptRate(scanner));
                         break;
                     case "--ipDir":

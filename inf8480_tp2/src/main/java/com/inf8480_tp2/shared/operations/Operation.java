@@ -1,12 +1,14 @@
 package com.inf8480_tp2.shared.operations;
 
+import java.io.Serializable;
+
 /**
  * An operation can be executed by a computational server and returns
  * a result.
  * 
  * @author Baptiste Rigondaud & Loïc Poncet
  */
-public abstract class Operation {
+public abstract class Operation implements Serializable {
 
     /**
      * Get the number of mathematical operations this object is containing
