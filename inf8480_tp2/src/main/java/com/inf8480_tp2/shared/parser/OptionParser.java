@@ -20,6 +20,7 @@ public class OptionParser {
     private int directoryPort;
     private int serverPort;
     private int serverCapacity;
+    private String operationFilePath;
 
     public OptionParser(String[] args) {
         this.parseOptions(args);
@@ -80,6 +81,16 @@ public class OptionParser {
     public void setServerCapacity(int serverCapacity) {
         this.serverCapacity = serverCapacity;
     }
+    
+    public String getOperationFilePath() {
+        return this.operationFilePath;
+    }
+    
+    private void setOperationsFile(Scanner scanner) {
+        if(!scanner.hasNext())
+            throw new IllegalArgumentException("Invalid value for operations file option.");
+        this.operationFilePath = scanner.next();
+    }
 
     /**
      * Do the parsing of the command line arguments
@@ -112,6 +123,9 @@ public class OptionParser {
                         break;
                     case "--capacity":
                         this.setServerCapacity(this.parseCapacity(scanner));
+                        break;
+                    case "--operations":
+                        this.setOperationsFile(scanner);
                         break;
                 }
             }
