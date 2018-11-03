@@ -24,6 +24,7 @@ public class Task extends Operation {
      * 
      * @return Task's operations.
      */
+    @Override
     public Queue<Operation> getOperations() {
         return this.operations;
     }

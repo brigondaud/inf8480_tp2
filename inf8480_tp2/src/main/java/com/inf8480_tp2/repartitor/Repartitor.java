@@ -1,5 +1,8 @@
 package com.inf8480_tp2.repartitor;
 
+import com.inf8480_tp2.repartitor.executor.CheckExecutor;
+import com.inf8480_tp2.repartitor.executor.Executor;
+import com.inf8480_tp2.repartitor.executor.NoCheckExecutor;
 import com.inf8480_tp2.repartitor.factory.TaskFactory;
 import com.inf8480_tp2.repartitor.strategy.OptimalRepartitionStrategy;
 import com.inf8480_tp2.shared.directory.NameDirectory;
@@ -16,6 +19,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -48,6 +52,11 @@ public class Repartitor {
     private final Map<ServerInfo, Boolean> serverState;
     
     /**
+     * The executor which will send the task to the servers.
+     */
+    private final Executor executor;
+    
+    /**
      * Tells if the repartitor has finished all its tasks.
      */
     private boolean isDone = false;
@@ -65,8 +74,8 @@ public class Repartitor {
     /**
      * The credentials to authenticate the repartitor to the name service.
      */
-    private static final String LOGIN = "repartitor";
-    private static final String PASSWORD = "repartitorpassword";
+    public static final String LOGIN = "repartitor";
+    public static final String PASSWORD = "repartitorpassword";
     
     /**
      * Launches a repartitor that connects to the computation servers and
@@ -107,6 +116,10 @@ public class Repartitor {
             System.err.println("No operations file provided.");
             System.exit(1);
         }
+        if(options.isSafeMode())
+            this.executor = new NoCheckExecutor(this);
+        else
+            this.executor = new CheckExecutor(this);
         OperationsReader or = new OperationsReader(options.getOperationFilePath());
         or.createOperations(operationBuffer);
     }
@@ -121,14 +134,30 @@ public class Repartitor {
         nameDir.registerDispatcher(LOGIN, PASSWORD);
         TaskFactory taskFactory = new TaskFactory();
         setComputationServers(nameDir);
+        executor.setThreadNumber(computationServers.size());
         while(!isDone) {
-            setDone(true); //TODO: remove this
-            for(ServerInfo serverInfo: computationServers.keySet()) {
-                if(serverState.get(serverInfo))
+            // Using an iterator to be able to remove safely servers during
+            // runtime (in case of server crash).
+            if(computationServers.isEmpty()) {
+                System.err.println("ERROR: no more computation server is available."
+                        + " The operations cannot be done.");
+                System.exit(1);
+            }
+            Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<ServerInfo, ComputeServer> server = iter.next();
+                if(serverState.get(server.getKey()))
                     continue;
-                serverState.put(serverInfo, true);
-                taskFactory.setStrategy(new OptimalRepartitionStrategy(serverInfo.getCapacity()));
+                setServerState(server.getKey(), true);
+                taskFactory.setStrategy(new OptimalRepartitionStrategy(server.getKey().getCapacity()));
                 Task task = taskFactory.buildTask(operationBuffer);
+                executor.submit(task, server.getKey());
+            }
+            if(serversDone()) {
+                if(operationBuffer.isEmpty()) {
+                    executor.shutdown();
+                    isDone = true;
+                }
             }
         }
     }
@@ -142,7 +171,7 @@ public class Repartitor {
     private NameDirectory connectNameDirectory() {
         Registry registry;
         try {
-            registry = LocateRegistry.getRegistry("TODO: put @IP");
+            registry = LocateRegistry.getRegistry(options.getDirectoryAddress());
             return (NameDirectory) registry.lookup("NameDirectory");
         } catch (RemoteException ex) {
             System.err.println("Cannot connect to the name directory.");
@@ -167,7 +196,7 @@ public class Repartitor {
                 Registry reg = LocateRegistry.getRegistry(serverInfo.getIpAdress());
                 ComputeServer server = (ComputeServer)reg.lookup("ComputeServer"); //TODO: use port !
                 computationServers.put(serverInfo, server);
-                serverState.put(serverInfo, false);
+                setServerState(serverInfo, false);
             } catch (NotBoundException ex) {
                 System.err.println("The computation server appears not to be bound.");
                 System.exit(1);
@@ -209,9 +238,63 @@ public class Repartitor {
      * 
      * @param operationResult The result of an operation.
      */
-    public void computeResult(int operationResult) {
+    public synchronized void computeResult(int operationResult) {
         this.result += operationResult;
         this.result %= 4000;
     }
     
+    /**
+     * Adds operation to the repartitor's operation buffer. Used when a task
+     * must be resent to a server, thus needs to be 'uncompiled' back to
+     * the repartitor.
+     * 
+     * @param queue The operations to add to the repartitor.
+     */
+    public synchronized void addOperations(Queue<Operation> queue) {
+        operationBuffer.addAll(queue);
+    }
+    
+    /**
+     * Getter for the list of the repartitor's computation servers.
+     * 
+     * @return The repartitor's computation servers.
+     */
+    public Map<ServerInfo, ComputeServer> getComputationServers() {
+        return computationServers;
+    }
+    
+    /**
+     * Updates the occupation state of a computation server.
+     * 
+     * @param server The server for which the state needs to be updated.
+     * @param state The new state of the server.
+     */
+    public synchronized void setServerState(ServerInfo server, Boolean state) {
+        serverState.replace(server, state);
+    }
+    
+    /**
+     * Removes a server and its state from the repartitor.
+     * 
+     * @param server The server to remove.
+     */
+    public synchronized void removeServer(ServerInfo server) {
+        computationServers.remove(server);
+        serverState.remove(server);
+    }
+    
+    /**
+     * Tells if every server is done (which means that every server is
+     * available).
+     * 
+     * @return true if every server state is false.
+     */
+    public boolean serversDone() {
+        Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
+        while(iter.hasNext()) {
+            if(serverState.get(iter.next().getKey()))
+                return false;
+        }
+        return true;
+    }
 }
