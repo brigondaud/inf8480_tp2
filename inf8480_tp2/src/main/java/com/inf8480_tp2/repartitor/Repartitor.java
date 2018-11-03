@@ -13,6 +13,7 @@ import com.inf8480_tp2.shared.parser.OptionParser;
 import com.inf8480_tp2.shared.server.ComputeServer;
 import com.inf8480_tp2.shared.server.ServerInfo;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -143,11 +144,12 @@ public class Repartitor {
                 System.exit(1);
             }
             Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
-            while(iter.hasNext()) {
+            while(iter.hasNext() && !operationBuffer.isEmpty()) {
                 Map.Entry<ServerInfo, ComputeServer> server = iter.next();
                 if(serverState.get(server.getKey()))
                     continue;
                 setServerState(server.getKey(), true);
+                //TODO: check when unsafe if a task is waiting to be scheduled on a second server
                 taskFactory.setStrategy(new OptimalRepartitionStrategy(server.getKey().getCapacity()));
                 Task task = taskFactory.buildTask(operationBuffer);
                 executor.submit(task, server.getKey());

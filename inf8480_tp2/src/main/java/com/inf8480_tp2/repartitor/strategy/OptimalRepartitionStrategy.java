@@ -46,7 +46,7 @@ public class OptimalRepartitionStrategy implements RepartitionStrategy {
      */
     @Override
     public int computeSize() {
-        return (5/2)*capacity;
+        return (5*capacity)/2;
     }
     
 }

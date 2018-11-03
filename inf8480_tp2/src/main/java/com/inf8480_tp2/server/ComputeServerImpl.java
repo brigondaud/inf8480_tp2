@@ -97,7 +97,7 @@ public class ComputeServerImpl implements ComputeServer {
         } else if (taskSize > 5 * this.serverCapacity) {
             return 100;
         } else {
-            return ((taskSize - this.serverCapacity) / (4 * this.serverCapacity)) * 100;
+            return ((float)(taskSize - this.serverCapacity) / (float)(4 * this.serverCapacity)) * 100;
         }
     }
 

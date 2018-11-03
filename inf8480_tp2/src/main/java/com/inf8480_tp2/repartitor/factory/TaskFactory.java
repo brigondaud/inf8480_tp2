@@ -55,7 +55,7 @@ public class TaskFactory {
         for(int i = 0; i < strategy.computeSize(); i++) {
             if(operationBuffer.isEmpty())
                 return task;
-            task.addOperation(operationBuffer.poll());            
+            task.addOperation(operationBuffer.poll());
         }
         return task;
     }
