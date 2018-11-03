@@ -85,7 +85,8 @@ public class OptionParser {
 
     /**
      * Do the parsing of the command line arguments
-     * @param args
+     *
+     * @param args The arguments passed by command line to the program
      */
     public void parseOptions(String args[]) {
         if (args.length == 0) {
@@ -144,8 +145,8 @@ public class OptionParser {
             throw new IllegalArgumentException("Invalid value for port option, should be an integer between 5000 and 5050");
         }
         int port = scanner.nextInt();
-        if (port < 5000 || port > 5050) {
-            throw new IllegalArgumentException("Invalid value for port option, should be an integer between 5000 and 5050");
+        if (port <= 5000 || port >= 5050) {
+            throw new IllegalArgumentException("Invalid value for port option, should be an integer between 5000 and 5050 (both excluded)");
         }
         return port;
     }
@@ -157,6 +158,9 @@ public class OptionParser {
         return scanner.nextInt();
     }
 
+    /**
+     * Display an help message and shut down the execution
+     */
     private void helpTriggered() {
         System.out.println("HELP: Different options can be passed via the command line arguments.\n" +
                 "OPTIONS\n" +

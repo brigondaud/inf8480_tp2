@@ -84,10 +84,9 @@ public class Repartitor {
      * 
      * @param args 
      */
-    public void main(String[] args) {
+    public static void main(String[] args) {
         try {
-            //TODO: read options to know if secure mode is set.
-            Repartitor repartitor = new Repartitor(new OptionParser(args)); // TODO: set the good file
+            Repartitor repartitor = new Repartitor(new OptionParser(args));
             repartitor.run();
             System.out.println(repartitor.getResult());
         } catch (FileNotFoundException ex) {
@@ -171,13 +170,13 @@ public class Repartitor {
     private NameDirectory connectNameDirectory() {
         Registry registry;
         try {
-            registry = LocateRegistry.getRegistry(options.getDirectoryAddress());
+            registry = LocateRegistry.getRegistry(options.getDirectoryAddress(), options.getDirectoryPort());
             return (NameDirectory) registry.lookup("NameDirectory");
         } catch (RemoteException ex) {
             System.err.println("Cannot connect to the name directory.");
+            System.exit(1);
         } catch (NotBoundException ex) {
             System.err.println("Name directory appears not to be bound.");
-        } finally {
             System.exit(1);
         }
         return null;
@@ -193,8 +192,8 @@ public class Repartitor {
     public void setComputationServers(NameDirectory nameDir) throws RemoteException {
         for(ServerInfo serverInfo: nameDir.getAvailableServers()){
             try {
-                Registry reg = LocateRegistry.getRegistry(serverInfo.getIpAdress());
-                ComputeServer server = (ComputeServer)reg.lookup("ComputeServer"); //TODO: use port !
+                Registry reg = LocateRegistry.getRegistry(serverInfo.getIpAdress(), serverInfo.getPort());
+                ComputeServer server = (ComputeServer)reg.lookup("ComputeServer");
                 computationServers.put(serverInfo, server);
                 setServerState(serverInfo, false);
             } catch (NotBoundException ex) {
@@ -270,7 +269,10 @@ public class Repartitor {
      * @param state The new state of the server.
      */
     public synchronized void setServerState(ServerInfo server, Boolean state) {
-        serverState.replace(server, state);
+        if(serverState.containsKey(server))
+            serverState.replace(server, state);
+        else
+            serverState.put(server, state);
     }
     
     /**

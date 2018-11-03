@@ -33,18 +33,9 @@ public class NameDirectoryImpl implements NameDirectory {
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
-        try {
-            String name = "NameDirectory";
-            OptionParser parser = new OptionParser(args);
-            NameDirectory serverDirectory = new NameDirectoryImpl();
-            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, parser.getDirectoryPort() + 1);
-            Registry registry = LocateRegistry.getRegistry(parser.getDirectoryPort());
-            registry.rebind(name, stub);
-            System.out.println("NameDirectory is ready.");
-        } catch (RemoteException e) {
-            System.err.println("Error during directory binding in RMI Registry");
-            e.printStackTrace();
-        }
+        OptionParser parser = new OptionParser(args);
+        NameDirectoryImpl serverDirectory = new NameDirectoryImpl();
+        serverDirectory.run(parser);
     }
 
     @Override
@@ -80,6 +71,23 @@ public class NameDirectoryImpl implements NameDirectory {
     public synchronized void unbind(String serverAddress, int serverPort) {
         ServerInfo serverToRemove = new ServerInfo(serverAddress, serverPort);
         this.serverDirectory.remove(serverToRemove);
+    }
+
+    /**
+     * Launch the directory
+     *
+     * @param parser
+     */
+    private void run(OptionParser parser) {
+        try {
+            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(this, parser.getDirectoryPort() + 1);
+            Registry registry = LocateRegistry.getRegistry(parser.getDirectoryPort());
+            registry.rebind("NameDirectory", stub);
+            System.out.println("NameDirectory is ready.");
+        } catch (RemoteException e) {
+            System.err.println("Error during directory binding in RMI Registry");
+            e.printStackTrace();
+        }
     }
 
 }

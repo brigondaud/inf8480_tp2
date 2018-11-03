@@ -1,12 +1,14 @@
 package com.inf8480_tp2.shared.server;
 
+import java.io.Serializable;
+
 /**
- * A class containing all the necessary information about a compute server.
+ * A model class containing all the necessary information about a compute server.
  * Each server will bind it's information through NameDirectory using this class
  *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
-public class ServerInfo {
+public class ServerInfo implements Serializable {
 
     private String ipAddress;
     private int capacity;

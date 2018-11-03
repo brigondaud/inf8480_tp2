@@ -18,8 +18,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
 
 /**
- * Implements a server class that will execute some operations assigned by a dispatcher using RMI.
- * Each server has a readable capacity from RMI call.
+ * Implements a compute server class that will execute some operations assigned by a dispatcher using RMI.
+ * Each server has a capacity assigned during construction.
  *
  * @author Baptiste Rigondaud and Loïc Poncet
  */
@@ -45,34 +45,14 @@ public class ComputeServerImpl implements ComputeServer {
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
-        try {
-            OptionParser parser = new OptionParser(args);
-            ComputeServer server;
-            if (parser.isSafeMode()) {
-                server = new ComputeServerImpl(parser.getServerCapacity());
-            } else {
-                server = new ComputeServerImpl(parser.getServerCapacity(), parser.getCorruptRate());
-            }
-            // Get the RMI Registry associated to the directory and lookup the directory stub
-            Registry directoryRegistry = LocateRegistry.getRegistry(parser.getDirectoryAddress(), parser.getDirectoryPort());
-            NameDirectory nameDirectory = (NameDirectory) directoryRegistry.lookup("NameDirectory");
-            ((ComputeServerImpl) server).nameDirectory = nameDirectory;
-            nameDirectory.bind(parser.getServerCapacity(), parser.getServerPort());
-            // Then a stub is bound to a registry locally
-            ComputeServer stub = (ComputeServer) UnicastRemoteObject.exportObject(server,parser.getServerPort() + 1);
-            Registry serverRegistry = LocateRegistry.getRegistry(parser.getServerPort());
-            serverRegistry.rebind("ComputeServer", stub);
-            System.out.println("Compute server ready.");
-        } catch (RemoteException e) {
-            System.err.println("Remote exception happened during Server creation: ");
-            e.printStackTrace();
-        } catch (NotBoundException e) {
-            System.err.println("NotBoundException happened during Server creation: ");
-            e.printStackTrace();
-        } catch (ServerNotActiveException e) {
-            System.err.println("An exception happened during object binding to name directory: ");
-            e.printStackTrace();
+        OptionParser parser = new OptionParser(args);
+        ComputeServerImpl server;
+        if (parser.isSafeMode()) {
+            server = new ComputeServerImpl(parser.getServerCapacity());
+        } else {
+            server = new ComputeServerImpl(parser.getServerCapacity(), parser.getCorruptRate());
         }
+        server.run(parser);
     }
 
     @Override
@@ -118,6 +98,35 @@ public class ComputeServerImpl implements ComputeServer {
             return 100;
         } else {
             return ((taskSize - this.serverCapacity) / (4 * this.serverCapacity)) * 100;
+        }
+    }
+
+    /**
+     * Launch the server
+     *
+     * @param parser The option parser containing information obtained by command line
+     */
+    private void run(OptionParser parser) {
+        try {
+            // Get the RMI Registry associated to the directory and lookup the directory stub
+            Registry directoryRegistry = LocateRegistry.getRegistry(parser.getDirectoryAddress(), parser.getDirectoryPort());
+            NameDirectory nameDirectory = (NameDirectory) directoryRegistry.lookup("NameDirectory");
+            this.nameDirectory = nameDirectory;
+            nameDirectory.bind(parser.getServerCapacity(), parser.getServerPort());
+            // Then a stub is bound to a registry locally
+            ComputeServer stub = (ComputeServer) UnicastRemoteObject.exportObject(this,parser.getServerPort() + 1);
+            Registry serverRegistry = LocateRegistry.getRegistry(parser.getServerPort());
+            serverRegistry.rebind("ComputeServer", stub);
+            System.out.println("Compute server ready.");
+        } catch (RemoteException e) {
+            System.err.println("Remote exception happened during Server creation: ");
+            e.printStackTrace();
+        } catch (NotBoundException e) {
+            System.err.println("NotBoundException happened during Server creation: ");
+            e.printStackTrace();
+        } catch (ServerNotActiveException e) {
+            System.err.println("An exception happened during object binding to name directory: ");
+            e.printStackTrace();
         }
     }
 
