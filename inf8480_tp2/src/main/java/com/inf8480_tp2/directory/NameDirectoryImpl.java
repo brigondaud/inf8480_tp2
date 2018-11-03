@@ -36,10 +36,9 @@ public class NameDirectoryImpl implements NameDirectory {
         try {
             String name = "NameDirectory";
             OptionParser parser = new OptionParser(args);
-            int port = parser.getDirectoryPort();
             NameDirectory serverDirectory = new NameDirectoryImpl();
-            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, port + 1);
-            Registry registry = LocateRegistry.getRegistry(port);
+            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, parser.getDirectoryPort() + 1);
+            Registry registry = LocateRegistry.getRegistry(parser.getDirectoryPort());
             registry.rebind(name, stub);
             System.out.println("NameDirectory is ready.");
         } catch (RemoteException e) {
@@ -55,8 +54,8 @@ public class NameDirectoryImpl implements NameDirectory {
 
     @Override
     public synchronized void bind(int serverCapacity, int serverPort) throws ServerNotActiveException {
-        System.out.println(RemoteServer.getClientHost());
         ServerInfo serverInfo = new ServerInfo(RemoteServer.getClientHost(), serverCapacity, serverPort);
+        System.out.println(serverInfo);
         /*
          * If an element with the same IP Address is already present in the collection,
          * it must be remove after the add is performed. Otherwise, nothing will happen and

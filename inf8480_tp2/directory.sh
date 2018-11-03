@@ -6,12 +6,6 @@ pushd $(dirname $0) > /dev/null
 basepath=$(pwd)
 popd > /dev/null
 
-cat << EndOfMessage
-HELP: 
-./directory.sh
-
-EndOfMessage
-
 # Launch the name directory
 java -cp "$basepath"/target/classes:"$basepath"/target/tp2.jar \
   -Djava.rmi.server.codebase=file:"$basepath"/target/tp2.jar \

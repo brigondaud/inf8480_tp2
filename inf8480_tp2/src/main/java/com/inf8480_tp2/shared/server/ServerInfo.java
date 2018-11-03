@@ -59,4 +59,13 @@ public class ServerInfo {
     public int hashCode() {
         return this.ipAddress.hashCode() * this.port;
     }
+
+    @Override
+    public String toString() {
+        String res = "";
+        res += "Server IP: " + this.ipAddress + "\n";
+        res += "Server port: " + String.valueOf(this.port) + "\n";
+        res += "Server capacity: " + String.valueOf(this.capacity) + "\n";
+        return res;
+    }
 }

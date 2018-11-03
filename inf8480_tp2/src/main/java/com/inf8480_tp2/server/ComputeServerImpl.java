@@ -26,10 +26,19 @@ import java.util.Random;
 public class ComputeServerImpl implements ComputeServer {
 
     private int serverCapacity;
+    private boolean isSafe;
+    private float corruptRate;
     private NameDirectory nameDirectory;
 
     public ComputeServerImpl(int capacity) {
         this.serverCapacity = capacity;
+        this.isSafe = true;
+    }
+
+    public ComputeServerImpl(int capacity, float corruptRate) {
+        this.serverCapacity = capacity;
+        this.isSafe = false;
+        this.corruptRate = corruptRate;
     }
 
     public static void main(String[] args) {
@@ -38,19 +47,20 @@ public class ComputeServerImpl implements ComputeServer {
         }
         try {
             OptionParser parser = new OptionParser(args);
-            int serverCapacity = parser.getServerCapacity();
-            String directoryAddress = parser.getDirectoryAddress();
-            int serverPort = parser.getServerPort();
-            int directoryPort = parser.getDirectoryPort();
-            ComputeServer server = new ComputeServerImpl(serverCapacity);
+            ComputeServer server;
+            if (parser.isSafeMode()) {
+                server = new ComputeServerImpl(parser.getServerCapacity());
+            } else {
+                server = new ComputeServerImpl(parser.getServerCapacity(), parser.getCorruptRate());
+            }
             // Get the RMI Registry associated to the directory and lookup the directory stub
-            Registry directoryRegistry = LocateRegistry.getRegistry(directoryAddress, directoryPort);
+            Registry directoryRegistry = LocateRegistry.getRegistry(parser.getDirectoryAddress(), parser.getDirectoryPort());
             NameDirectory nameDirectory = (NameDirectory) directoryRegistry.lookup("NameDirectory");
             ((ComputeServerImpl) server).nameDirectory = nameDirectory;
-            nameDirectory.bind(serverCapacity, serverPort);
+            nameDirectory.bind(parser.getServerCapacity(), parser.getServerPort());
             // Then a stub is bound to a registry locally
-            ComputeServer stub = (ComputeServer) UnicastRemoteObject.exportObject(server, serverPort + 1);
-            Registry serverRegistry = LocateRegistry.getRegistry(serverPort);
+            ComputeServer stub = (ComputeServer) UnicastRemoteObject.exportObject(server,parser.getServerPort() + 1);
+            Registry serverRegistry = LocateRegistry.getRegistry(parser.getServerPort());
             serverRegistry.rebind("ComputeServer", stub);
             System.out.println("Compute server ready.");
         } catch (RemoteException e) {
@@ -76,7 +86,22 @@ public class ComputeServerImpl implements ComputeServer {
         if (refusalRate > 0 && randomNum <= refusalRate) {
             return new OutOfCapacityResponse();
         }
+        /*
+         * The server always execute the task even if it is corrupted, otherwise
+         * the dispatcher would easily be able to spot that this server is corrupted
+         */
         int result = operation.execute();
+        // If the server is corrupted, return a Response containing a false result with a probability of (corruptRate / 100)
+        if (!this.isSafe) {
+            randomNum = random.nextFloat() * 100;
+            if (randomNum <= this.corruptRate) {
+                int falseResult = random.nextInt(4000);
+                while (falseResult == result) {
+                    falseResult = random.nextInt(4000);
+                }
+                return new ComputeResponse(falseResult);
+            }
+        }
         return new ComputeResponse(result);
     }
 
