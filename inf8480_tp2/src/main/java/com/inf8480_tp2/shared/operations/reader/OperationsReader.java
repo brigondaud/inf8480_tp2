@@ -3,10 +3,7 @@ package com.inf8480_tp2.shared.operations.reader;
 import com.inf8480_tp2.shared.operations.Pell;
 import com.inf8480_tp2.shared.operations.Prime;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Collection;
 
 /**
@@ -23,12 +20,13 @@ public class OperationsReader {
     BufferedReader reader;
     
     /**
-     * Initiates a reader using the path to the operations file.
+     * Initiates a reader using the relative path to the operations file.
      * 
      * @param operationsFilePath The file containing the operations.
      */
     public OperationsReader(String operationsFilePath) throws FileNotFoundException {
-        this.reader = new BufferedReader(new FileReader(operationsFilePath));
+        String executionDirectory = System.getProperty("user.dir") + File.separator;
+        this.reader = new BufferedReader(new FileReader(executionDirectory + operationsFilePath));
     }
 
     /**

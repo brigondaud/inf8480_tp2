@@ -16,7 +16,6 @@ public class OptionParser {
     private boolean isSafeMode = true;
     private float corruptRate;
     private String directoryAddress;
-    private String serverAdress;
     private int directoryPort;
     private int serverPort;
     private int serverCapacity;
@@ -48,14 +47,6 @@ public class OptionParser {
 
     public void setDirectoryAddress(String directoryAddress) {
         this.directoryAddress = directoryAddress;
-    }
-
-    public String getServerAdress() {
-        return this.serverAdress;
-    }
-
-    public void setServerAdress(String serverAdress) {
-        this.serverAdress = serverAdress;
     }
 
     public int getDirectoryPort() {
@@ -97,6 +88,9 @@ public class OptionParser {
      * @param args
      */
     public void parseOptions(String args[]) {
+        if (args.length == 0) {
+            this.helpTriggered();
+        }
         String options = Arrays.stream(args).collect(Collectors.joining(" "));
         Scanner scanner = new Scanner(options);
         try {
@@ -113,9 +107,6 @@ public class OptionParser {
                     case "--ipDir":
                         this.setDirectoryAddress(scanner.next());
                         break;
-                    case "--ipServer":
-                        this.setServerAdress(scanner.next());
-                        break;
                     case "--portDir":
                         this.setDirectoryPort(this.parsePort(scanner));
                         break;
@@ -128,10 +119,12 @@ public class OptionParser {
                     case "--operations":
                         this.setOperationsFile(scanner);
                         break;
+                    default:
+                        this.helpTriggered();
                 }
             }
         } catch (NoSuchElementException e) {
-            throw new IllegalArgumentException("Invalid options");
+            this.helpTriggered();
         }
     }
 
@@ -162,5 +155,18 @@ public class OptionParser {
             throw new IllegalArgumentException("Invalid value for capacity option, it should be an integer");
         }
         return scanner.nextInt();
+    }
+
+    private void helpTriggered() {
+        System.out.println("HELP: Different options can be passed via the command line arguments.\n" +
+                "OPTIONS\n" +
+                "--unsafe (server, specify that the server is corrupted)\n" +
+                "--corrupt rate (server, specify the corrupt rate of the server, must be between 0 and 100)\n" +
+                "--ipDir ip ([server, repartitor], specify the IP address of the name directory)\n" +
+                "--portDir port ([server, directory], specify on which port the name directory should be/is running)\n" +
+                "--portServer port (server, specify on which port the server should be running)\n" +
+                "--capacity C (server, specify the capacity of the compute server)\n" +
+                "--operations file_path (repartitor, Specify the RELATIVE file path of the file containing the operations)");
+        System.exit(0);
     }
 }

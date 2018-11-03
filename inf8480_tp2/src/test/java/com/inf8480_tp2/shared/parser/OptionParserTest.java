@@ -11,7 +11,7 @@ public class OptionParserTest {
     @Test
     public void corruptOptionTest() {
         String[] notCorrupted = {"--portDir", "5000"};
-        String[] corrupted = {"--unsafe", "--corrupt", "75.5"};
+        String[] corrupted = {"--unsafe", "--corrupt", "75,5"};
         String[] corruptOptionOnly = {"--corrupt", "50"};
         OptionParser parser = new OptionParser(notCorrupted);
         assertTrue(parser.isSafeMode());

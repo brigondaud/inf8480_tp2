@@ -36,10 +36,9 @@ public class NameDirectoryImpl implements NameDirectory {
         try {
             String name = "NameDirectory";
             OptionParser parser = new OptionParser(args);
-            int port = parser.getDirectoryPort();
             NameDirectory serverDirectory = new NameDirectoryImpl();
-            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, port + 1);
-            Registry registry = LocateRegistry.getRegistry(port);
+            NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(serverDirectory, parser.getDirectoryPort() + 1);
+            Registry registry = LocateRegistry.getRegistry(parser.getDirectoryPort());
             registry.rebind(name, stub);
             System.out.println("NameDirectory is ready.");
         } catch (RemoteException e) {
