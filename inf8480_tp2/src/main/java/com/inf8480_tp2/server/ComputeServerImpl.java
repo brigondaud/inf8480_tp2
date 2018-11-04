@@ -121,12 +121,15 @@ public class ComputeServerImpl implements ComputeServer {
         } catch (RemoteException e) {
             System.err.println("Remote exception happened during Server creation: ");
             e.printStackTrace();
+            System.exit(1);
         } catch (NotBoundException e) {
             System.err.println("NotBoundException happened during Server creation: ");
             e.printStackTrace();
+            System.exit(1);
         } catch (ServerNotActiveException e) {
             System.err.println("An exception happened during object binding to name directory: ");
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
