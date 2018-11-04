@@ -19,7 +19,7 @@ public class OptionParser {
     private String directoryAddress;
     private int directoryPort;
     private int serverPort;
-    private int serverCapacity;
+    private int serverCapacity = 4;
     private String operationFilePath;
 
     public OptionParser(String[] args) {
@@ -154,9 +154,13 @@ public class OptionParser {
 
     private int parseCapacity(Scanner scanner) {
         if (!scanner.hasNextInt()) {
-            throw new IllegalArgumentException("Invalid value for capacity option, it should be an integer");
+            throw new IllegalArgumentException("Invalid value for capacity option, it should be an integer > 0");
+        } else {
+            int res = scanner.nextInt();
+            if (res <= 0)
+                throw new IllegalArgumentException("Capacity should be more than 0");
+            return res;
         }
-        return scanner.nextInt();
     }
 
     /**

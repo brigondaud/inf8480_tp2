@@ -48,7 +48,7 @@ public class SafeRepartitorTest {
             System.err.println("Cannot start the integration test: the"
                     + " registry cannot be created.");
         }
-        nameDir.run(new OptionParser(new String[]{"--portDir", "5002"}));
+        nameDir.run(new OptionParser(new String[]{"--portDir", "5001"}));
     }
     
     /**
