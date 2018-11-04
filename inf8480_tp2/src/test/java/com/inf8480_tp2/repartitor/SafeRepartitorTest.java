@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  */
 public class SafeRepartitorTest {
     
-    private static final int dirPort = 5001;
+    private static final int dirPort = 5025;
     
     /**
      * The name directory used in during the tests.
@@ -118,7 +118,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void oneServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(1, dirPort, 5002);
+        runner.runSafeServers(1, dirPort, 5030);
         runAllOperations();
         
     }
@@ -128,7 +128,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void twoServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(2, dirPort, 5002);
+        runner.runSafeServers(2, dirPort, 5030);
         runAllOperations();
         
     }
@@ -138,7 +138,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void threeServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(3, dirPort, 5002);
+        runner.runSafeServers(3, dirPort, 5030);
         runAllOperations();
         
     }
