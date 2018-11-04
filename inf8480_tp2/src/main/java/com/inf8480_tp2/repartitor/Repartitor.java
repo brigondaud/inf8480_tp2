@@ -13,7 +13,6 @@ import com.inf8480_tp2.shared.parser.OptionParser;
 import com.inf8480_tp2.shared.server.ComputeServer;
 import com.inf8480_tp2.shared.server.ServerInfo;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -24,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The Repartitor splits the computations on all the calculator servers. It 
@@ -38,6 +38,17 @@ public class Repartitor {
      * distribute.
      */
     private final Queue<Operation> operationBuffer;
+    
+    /**
+     * A map that holds the non verified task and the server they have already
+     * been submitted to.
+     */
+    private final Map<Operation, ServerInfo> taskScheduled;
+    
+    /**
+     * A queue containing all the non verified task in non safe mode.
+     */
+    private final Queue<Operation> nonVerifiedTask;
     
     /**
      * A map of the available computation servers to operation execution.
@@ -109,6 +120,8 @@ public class Repartitor {
     public Repartitor(OptionParser options) throws FileNotFoundException {
         this.operationBuffer = new LinkedList();
         this.computationServers = new HashMap();
+        this.taskScheduled = new HashMap();
+        this.nonVerifiedTask = new LinkedBlockingQueue();
         this.serverState = new HashMap();
         this.result = 0;
         this.options = options;
@@ -132,28 +145,28 @@ public class Repartitor {
     public void run() throws RemoteException {
         NameDirectory nameDir = connectNameDirectory();
         nameDir.registerDispatcher(LOGIN, PASSWORD);
-        TaskFactory taskFactory = new TaskFactory();
         setComputationServers(nameDir);
         executor.setThreadNumber(computationServers.size());
         while(!isDone) {
-            // Using an iterator to be able to remove safely servers during
-            // runtime (in case of server crash).
+            
+            // If the task is not done but there is no more servers available.
             if(computationServers.isEmpty()) {
                 System.err.println("ERROR: no more computation server is available."
                         + " The operations cannot be done.");
                 System.exit(1);
             }
+            
+            // Using an iterator to be able to remove safely servers during
+            // runtime (in case of server crash).
             Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
             while(iter.hasNext() && !operationBuffer.isEmpty()) {
                 Map.Entry<ServerInfo, ComputeServer> server = iter.next();
                 if(serverState.get(server.getKey()))
                     continue;
-                setServerState(server.getKey(), true);
-                //TODO: check when unsafe if a task is waiting to be scheduled on a second server
-                taskFactory.setStrategy(new OptimalRepartitionStrategy(server.getKey().getCapacity()));
-                Task task = taskFactory.buildTask(operationBuffer);
-                executor.submit(task, server.getKey());
+                submitTask(server.getKey());
             }
+            
+            // Check for termination.
             if(serversDone()) {
                 if(operationBuffer.isEmpty()) {
                     executor.shutdown();
@@ -161,6 +174,43 @@ public class Repartitor {
                 }
             }
         }
+    }
+    
+    /**
+     * Submits a task to a given server. Checks the options for scheduling
+     * the task that needs to be verified in priority.
+     * 
+     * @param server The server on which a task can be submitted.
+     */
+    private void submitTask(ServerInfo server) {
+        setServerState(server, true); // TODO: move this
+                
+        if(!options.isSafeMode()) {
+            // Check if a task needs to be verified.
+            if(!nonVerifiedTask.isEmpty())
+                if(taskScheduled.get(nonVerifiedTask.peek()) != server) {
+                    // Remove the task from unverified and submit it if the
+                    // server is not the creator of the task.
+                    Operation task = nonVerifiedTask.poll();
+                    taskScheduled.remove(task);
+                    executor.submit(task, server);
+                    return;
+                }
+            // If no task needs to be verified, go on with creating a new task 
+            // since the server is ready to compute.
+        }
+        
+        TaskFactory taskFactory = new TaskFactory();
+        // Size the task according to the safety option.
+        int capacity = options.isSafeMode() ? getMinimumServerCapacity(): server.getCapacity();
+        taskFactory.setStrategy(new OptimalRepartitionStrategy(capacity));
+        Task task = taskFactory.buildTask(operationBuffer);
+        
+        // Set the task to be verified if unsafe mode.
+        if(!options.isSafeMode())
+            pushToVerification(task, server);
+        
+        executor.submit(task, server);
     }
     
     /**
@@ -300,5 +350,35 @@ public class Repartitor {
                 return false;
         }
         return true;
+    }
+    
+    /**
+     * In a non safe context, the minimum capacity is used to size the tasks. In
+     * fact, it allows the task not to be rejected by the servers when it is
+     * scheduled on a server for verification.
+     * 
+     * @return The minimum capacity of the available servers.
+     */
+    private int getMinimumServerCapacity() {
+        int min = Integer.MAX_VALUE;
+        Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
+        while(iter.hasNext()) {
+            Map.Entry<ServerInfo, ComputeServer> server = iter.next();
+            int capacity = server.getKey().getCapacity();
+            min = capacity < min ? capacity: min;
+        }
+        return min;
+    }
+
+    /**
+     * Pushes a task to verification process. The task will be rescheduled on a
+     * server different from the one which created the task.
+     * 
+     * @param task The task to send to verification.
+     * @param server The server which created and thus submitted the task once.
+     */
+    private void pushToVerification(Task task, ServerInfo server) {
+        taskScheduled.put(task, server);
+        nonVerifiedTask.add(task);
     }
 }
