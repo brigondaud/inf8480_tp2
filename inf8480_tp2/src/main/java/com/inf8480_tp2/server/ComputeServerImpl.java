@@ -106,7 +106,7 @@ public class ComputeServerImpl implements ComputeServer {
      *
      * @param parser The option parser containing information obtained by command line
      */
-    private void run(OptionParser parser) {
+    public void run(OptionParser parser) {
         try {
             // Get the RMI Registry associated to the directory and lookup the directory stub
             Registry directoryRegistry = LocateRegistry.getRegistry(parser.getDirectoryAddress(), parser.getDirectoryPort());
