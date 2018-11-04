@@ -1,5 +1,6 @@
 package com.inf8480_tp2.shared.parser;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -80,7 +81,7 @@ public class OptionParser {
     private void setOperationsFile(Scanner scanner) {
         if(!scanner.hasNext())
             throw new IllegalArgumentException("Invalid value for operations file option.");
-        this.operationFilePath = scanner.next();
+        this.operationFilePath = System.getProperty("user.dir") + File.separator + scanner.next();
     }
 
     /**

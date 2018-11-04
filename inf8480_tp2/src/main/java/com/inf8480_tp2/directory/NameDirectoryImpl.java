@@ -61,7 +61,6 @@ public class NameDirectoryImpl implements NameDirectory {
         return this.serverDirectory;
     }
 
-
     @Override
     public synchronized void registerDispatcher(String login, String password) {
         this.dispatcherDirectory.put(login, password);
@@ -78,7 +77,7 @@ public class NameDirectoryImpl implements NameDirectory {
      *
      * @param parser
      */
-    private void run(OptionParser parser) {
+    public void run(OptionParser parser) {
         try {
             NameDirectory stub = (NameDirectory) UnicastRemoteObject.exportObject(this, parser.getDirectoryPort() + 1);
             Registry registry = LocateRegistry.getRegistry(parser.getDirectoryPort());
@@ -87,7 +86,15 @@ public class NameDirectoryImpl implements NameDirectory {
         } catch (RemoteException e) {
             System.err.println("Error during directory binding in RMI Registry");
             e.printStackTrace();
+            System.exit(1);
         }
+    }
+    
+    /**
+     * For tests purpose: flushes the name directory.
+     */
+    public synchronized void flush() {
+        this.serverDirectory.clear();
     }
 
 }

@@ -25,8 +25,7 @@ public class OperationsReader {
      * @param operationsFilePath The file containing the operations.
      */
     public OperationsReader(String operationsFilePath) throws FileNotFoundException {
-        String executionDirectory = System.getProperty("user.dir") + File.separator;
-        this.reader = new BufferedReader(new FileReader(executionDirectory + operationsFilePath));
+        this.reader = new BufferedReader(new FileReader(operationsFilePath));
     }
 
     /**
