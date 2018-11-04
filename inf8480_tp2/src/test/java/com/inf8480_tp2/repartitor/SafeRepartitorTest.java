@@ -71,8 +71,8 @@ public class SafeRepartitorTest {
     /**
      * Computes the operations with only one computation server.
      */
-    @Test
-    public void oneServerTest() {
-        assertTrue(true);
-    }
+//    @Test
+//    public void oneServerTest() {
+//        assertTrue(true);
+//    }
 }
