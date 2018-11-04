@@ -2,6 +2,7 @@ package com.inf8480_tp2.repartitor;
 
 import com.inf8480_tp2.directory.NameDirectoryImpl;
 import com.inf8480_tp2.server.ComputeServerImpl;
+import com.inf8480_tp2.server.ComputeServerRunner;
 import com.inf8480_tp2.shared.parser.OptionParser;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,12 +40,18 @@ public class SafeRepartitorTest {
      */
     private Map<File, Repartitor> repartitors;
     
+    /**
+     * A runner to start computation servers.
+     */
+    private ComputeServerRunner runner;
+    
     private static final String operationsFolder = System.getProperty("user.dir") 
             + File.separator
             + "operations";
 
     public SafeRepartitorTest() {
         this.repartitors = new HashMap();
+        this.runner = new ComputeServerRunner();
     }
     
     /**
@@ -91,37 +98,48 @@ public class SafeRepartitorTest {
         nameDir.flush();
         repartitors.clear();
     }
-
+    
     /**
-     * Computes the operations with only one computation server.
+     * Run all the operations files.
+     * 
+     * @throws RemoteException 
      */
-    @Test
-    public void oneServerTest() throws UnknownHostException, RemoteException {
-        int serverPort = 5010;
-        int capacity = 10;
-        try {
-            LocateRegistry.createRegistry(serverPort);
-        } catch (RemoteException ex) {
-            System.err.println("oneServerTest: cannot create RMI registry");
-        }
-        String[] options = {
-            "--ipDir",
-            InetAddress.getLocalHost().getHostAddress(),
-            "--portDir",
-            dirPort+"",
-            "--portServer",
-            serverPort+"",
-            "--capacity",
-            capacity+""
-        };
-        OptionParser parser = new OptionParser(options);
-        ComputeServerImpl server = new ComputeServerImpl(parser.getServerCapacity());
-        server.run(parser);
+    private void runAllOperations() throws RemoteException {
         for(File file: repartitors.keySet()) {
             Repartitor repartitor = repartitors.get(file);
             repartitor.run();
             assertEquals(Integer.parseInt(file.getName().split("-")[1]),
                     repartitor.getResult());
         }
+    }
+
+    /**
+     * Computes the operations with only one computation server.
+     */
+    @Test
+    public void oneServerTest() throws UnknownHostException, RemoteException {
+        runner.runSafeServers(1, dirPort, 5002);
+        runAllOperations();
+        
+    }
+    
+    /**
+     * Computes the operations with two computation servers.
+     */
+    @Test
+    public void twoServerTest() throws UnknownHostException, RemoteException {
+        runner.runSafeServers(2, dirPort, 5002);
+        runAllOperations();
+        
+    }
+    
+    /**
+     * Computes the operations with three computation servers.
+     */
+    @Test
+    public void threeServerTest() throws UnknownHostException, RemoteException {
+        runner.runSafeServers(3, dirPort, 5002);
+        runAllOperations();
+        
     }
 }
