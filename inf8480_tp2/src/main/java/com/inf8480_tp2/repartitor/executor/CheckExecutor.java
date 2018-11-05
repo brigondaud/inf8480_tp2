@@ -4,6 +4,8 @@ import com.inf8480_tp2.repartitor.Repartitor;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.ComputeResponse;
 import com.inf8480_tp2.shared.response.Response;
+import com.inf8480_tp2.shared.server.ServerInfo;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +25,7 @@ public class CheckExecutor extends Executor {
 
     public CheckExecutor(Repartitor repartitor) {
         super(repartitor);
-        this.responseReceived = new ConcurrentHashMap();
+        this.responseReceived = new ConcurrentHashMap<>();
     }
     
     /**
@@ -35,9 +37,10 @@ public class CheckExecutor extends Executor {
      * @param response The response sent by the server.
      */
     @Override
-    public void onReceive(Operation task, Response response) {
+    public void onReceive(Operation task, Response response, ServerInfo serverInfo) {
         if(!responseReceived.containsKey(task)) {
             responseReceived.put(task, response);
+            getRepartitor().pushToVerification(task, serverInfo);
             return;
         }
         Response storedComputation = responseReceived.get(task);

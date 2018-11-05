@@ -2,6 +2,7 @@ package com.inf8480_tp2.repartitor.executor;
 
 import com.inf8480_tp2.repartitor.Repartitor;
 import com.inf8480_tp2.shared.operations.Operation;
+import com.inf8480_tp2.shared.response.ComputeResponse;
 import com.inf8480_tp2.shared.response.Response;
 import com.inf8480_tp2.shared.server.ComputeServer;
 import com.inf8480_tp2.shared.server.ServerInfo;
@@ -57,7 +58,13 @@ public abstract class Executor {
                 try {
                     ComputeServer server = getRepartitor().getComputationServers().get(serverInfo);
                     Response resp = server.executeOperation(task, repartitor.LOGIN, repartitor.PASSWORD);
-                    onReceive(task, resp);
+                    /*
+                    if (resp.isSuccessful())
+                        System.out.println("Response received : " + ((ComputeResponse)resp).getResult());
+                    else
+                        System.out.println("Invalid response");
+                        */
+                    onReceive(task, resp, serverInfo);
                     // The server is now available to compute a new task.
                     getRepartitor().setServerState(serverInfo, false);
                 } catch (RemoteException ex) {
@@ -77,7 +84,7 @@ public abstract class Executor {
      * @param task The task for which a response was given.
      * @param response The response of the task execution.
      */
-    public abstract void onReceive(Operation task, Response response);
+    public abstract void onReceive(Operation task, Response response, ServerInfo serverInfo);
     
     /**
      * Getter for the repartitor's executor.

@@ -12,7 +12,7 @@ public class ServerInfo implements Serializable {
 
     private String ipAddress;
     private int capacity;
-    private int port;
+    private Integer port;
 
     public ServerInfo(String address, int port) {
         this.ipAddress = address;
@@ -59,7 +59,7 @@ public class ServerInfo implements Serializable {
 
     @Override
     public int hashCode() {
-        return this.ipAddress.hashCode() * this.port;
+        return this.ipAddress.hashCode() + this.port.hashCode();
     }
 
     @Override

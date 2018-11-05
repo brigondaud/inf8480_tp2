@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -32,7 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Baptiste Rigondaud & Loïc Poncet
  */
 public class Repartitor {
-    
+
     /**
      * The operation buffer contains every operation a repartitor has to
      * distribute.
@@ -118,11 +120,11 @@ public class Repartitor {
      * exist.
      */
     public Repartitor(OptionParser options) throws FileNotFoundException {
-        this.operationBuffer = new LinkedList();
+        this.operationBuffer = new ConcurrentLinkedQueue<>();
         this.computationServers = new HashMap();
         this.taskScheduled = new HashMap();
         this.nonVerifiedTask = new LinkedBlockingQueue();
-        this.serverState = new HashMap();
+        this.serverState = new ConcurrentHashMap<>();
         this.result = 0;
         this.options = options;
         if(options.getOperationFilePath() == null) {
@@ -195,9 +197,9 @@ public class Repartitor {
                 if(!(taskScheduled.get(nonVerifiedTask.peek()).equals(server))) {
                     // Remove the task from unverified and submit it if the
                     // server is not the creator of the task.
+                    setServerState(server, true);
                     Operation task = nonVerifiedTask.poll();
                     taskScheduled.remove(task);
-                    setServerState(server, true);
                     executor.submit(task, server);
                     return;
                 }
@@ -206,11 +208,14 @@ public class Repartitor {
         // If no task needs to be verified, go on with creating a new task 
         // since the server is ready to compute.
         if(!operationBuffer.isEmpty()) {
+            setServerState(server, true);
             Operation task = createNewTask(server);
             // Set the task to be verified if unsafe mode.
-            if(!options.isSafeMode())
+            /*
+            if(!options.isSafeMode()) {
                 pushToVerification(task, server);
-            setServerState(server, true);
+            }
+            */
             executor.submit(task, server);
         }
     }
@@ -393,7 +398,7 @@ public class Repartitor {
      * @param task The task to send to verification.
      * @param server The server which created and thus submitted the task once.
      */
-    private void pushToVerification(Operation task, ServerInfo server) {
+    public void pushToVerification(Operation task, ServerInfo server) {
         taskScheduled.put(task, server);
         nonVerifiedTask.add(task);
     }

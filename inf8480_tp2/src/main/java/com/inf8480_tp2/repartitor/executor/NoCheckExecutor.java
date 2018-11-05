@@ -4,6 +4,7 @@ import com.inf8480_tp2.repartitor.Repartitor;
 import com.inf8480_tp2.shared.operations.Operation;
 import com.inf8480_tp2.shared.response.ComputeResponse;
 import com.inf8480_tp2.shared.response.Response;
+import com.inf8480_tp2.shared.server.ServerInfo;
 
 /**
  * The check executor makes sure that a computation of a task gives the same
@@ -26,7 +27,7 @@ public class NoCheckExecutor extends Executor {
      * @param response The response sent by the server.
      */
     @Override
-    public void onReceive(Operation task, Response response) {
+    public void onReceive(Operation task, Response response, ServerInfo serverInfo) {
         if(!response.isSuccessful()) {
             // Either out of capacity or bad credentials.
             uncompileTask(task);
