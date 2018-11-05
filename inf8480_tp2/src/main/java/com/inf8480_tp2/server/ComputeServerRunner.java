@@ -60,7 +60,7 @@ public class ComputeServerRunner {
     public void runUnsafeServers(int number, int dirPort, int serverStartingPort) throws UnknownHostException {
         for(int i = 0; i < number; i+=1) {
             int serverPort = 2*i+serverStartingPort;
-            float rate = ThreadLocalRandom.current().nextFloat()*100;
+            int rate = ThreadLocalRandom.current().nextInt(1, 101);
             int capacity = ThreadLocalRandom.current().nextInt(1, 21);
             String[] options = {
                 "--ipDir",

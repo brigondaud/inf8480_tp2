@@ -37,8 +37,10 @@ public class CheckExecutor extends Executor {
     @Override
     public void onReceive(Operation task, Response response) {
         if(!response.isSuccessful()) {
-            // Either out of capacity or bad credentials.
-            uncompileTask(task);
+            // Either out of capacity or bad credentials, but uncompile only
+            // if the task has not successfully already been computed.
+            if(!responseReceived.containsKey(task))
+                uncompileTask(task);
             // If one server had already sent a response, we ignore it since
             // the operations are rescheduled most likely into several
             // different tasks.

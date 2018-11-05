@@ -65,6 +65,7 @@ public class SafeRepartitorTest {
         } catch (RemoteException ex) {
             System.err.println("Cannot start the safe integration test: the"
                     + " registry cannot be created.");
+            System.exit(1);
         }
         nameDir.run(new OptionParser(new String[]{"--portDir", ""+dirPort}));
     }

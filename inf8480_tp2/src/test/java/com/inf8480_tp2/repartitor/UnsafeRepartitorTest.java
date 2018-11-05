@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  */
 public class UnsafeRepartitorTest {
     
-    private static final int dirPort = 5025;
+    private static final int dirPort = 5010;
     
     /**
      * The name directory used in during the tests.
@@ -69,6 +69,7 @@ public class UnsafeRepartitorTest {
         } catch (RemoteException ex) {
             System.err.println("Cannot start the unsafe integration test: the"
                     + " registry cannot be created.");
+            System.exit(1);
         }
         nameDir.run(new OptionParser(new String[]{"--portDir", ""+dirPort}));
     }
