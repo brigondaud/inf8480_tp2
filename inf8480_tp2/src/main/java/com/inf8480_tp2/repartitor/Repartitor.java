@@ -163,16 +163,17 @@ public class Repartitor {
             // Using an iterator to be able to remove safely servers during
             // runtime (in case of server crash).
             Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
-            while(iter.hasNext() && !operationBuffer.isEmpty()) {
+            while(iter.hasNext() && (!operationBuffer.isEmpty() || !nonVerifiedTask.isEmpty())) {
                 Map.Entry<ServerInfo, ComputeServer> server = iter.next();
-                if(serverState.get(server.getKey()))
+                if(serverState.get(server.getKey())) {
                     continue;
+                }
                 submitTask(server.getKey());
             }
             
             // Check for termination.
             if(serversDone()) {
-                if(operationBuffer.isEmpty()) {
+                if(operationBuffer.isEmpty() && nonVerifiedTask.isEmpty()) {
                     executor.shutdown();
                     isDone = true;
                 }
