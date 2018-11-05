@@ -163,7 +163,7 @@ public class Repartitor {
             // Using an iterator to be able to remove safely servers during
             // runtime (in case of server crash).
             Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
-            while(iter.hasNext() && !operationBuffer.isEmpty()) {
+            while(iter.hasNext() && (!nonVerifiedTask.isEmpty() || !operationBuffer.isEmpty())) {
                 Map.Entry<ServerInfo, ComputeServer> server = iter.next();
                 if(serverState.get(server.getKey()))
                     continue;
@@ -172,7 +172,7 @@ public class Repartitor {
             
             // Check for termination.
             if(serversDone()) {
-                if(operationBuffer.isEmpty()) {
+                if(operationBuffer.isEmpty() && nonVerifiedTask.isEmpty()) {
                     executor.shutdown();
                     isDone = true;
                 }
@@ -191,7 +191,7 @@ public class Repartitor {
         if(!options.isSafeMode()) {
             // Check if a task needs to be verified.
             if(!nonVerifiedTask.isEmpty())
-                if(taskScheduled.get(nonVerifiedTask.peek()) != server) {
+                if(!(taskScheduled.get(nonVerifiedTask.peek()).equals(server))) {
                     // Remove the task from unverified and submit it if the
                     // server is not the creator of the task.
                     Operation task = nonVerifiedTask.poll();
@@ -202,13 +202,13 @@ public class Repartitor {
             // If no task needs to be verified, go on with creating a new task 
             // since the server is ready to compute.
         }
-        
+
         TaskFactory taskFactory = new TaskFactory();
         // Size the task according to the safety option.
         int capacity = options.isSafeMode() ? getMinimumServerCapacity(): server.getCapacity();
         taskFactory.setStrategy(new OptimalRepartitionStrategy(capacity));
         Task task = taskFactory.buildTask(operationBuffer);
-        
+
         // Set the task to be verified if unsafe mode.
         if(!options.isSafeMode())
             pushToVerification(task, server);
@@ -346,7 +346,7 @@ public class Repartitor {
      * 
      * @return true if every server state is false.
      */
-    public boolean serversDone() {
+    private boolean serversDone() {
         Iterator<Map.Entry<ServerInfo, ComputeServer>> iter = computationServers.entrySet().iterator();
         while(iter.hasNext()) {
             if(serverState.get(iter.next().getKey()))
