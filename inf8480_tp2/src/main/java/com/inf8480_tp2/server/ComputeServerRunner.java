@@ -48,4 +48,43 @@ public class ComputeServerRunner {
         }
     }
     
+    /**
+     * Starts unsafe computation servers. The malicious rate of each server
+     * is random (a float number between 0 and 100).
+     * 
+     * @param number Number of servers to create.
+     * @param dirPort The directory port.
+     * @param serverStartingPort The starting port for servers.
+     * @throws UnknownHostException 
+     */
+    public void runUnsafeServers(int number, int dirPort, int serverStartingPort) throws UnknownHostException {
+        for(int i = 0; i < number; i+=1) {
+            int serverPort = 2*i+serverStartingPort;
+            float rate = ThreadLocalRandom.current().nextFloat()*100;
+            int capacity = ThreadLocalRandom.current().nextInt(1, 21);
+            String[] options = {
+                "--ipDir",
+                InetAddress.getLocalHost().getHostAddress(),
+                "--portDir",
+                dirPort+"",
+                "--portServer",
+                serverPort+"",
+                "--capacity",
+                capacity+"",
+                "--unsafe",
+                "--corrupt",
+                rate+""
+            };
+            try {
+                LocateRegistry.createRegistry(serverPort);
+            } catch (RemoteException ex) {
+                System.err.println("Server runner: cannot create RMI registry");
+            }
+            OptionParser parser = new OptionParser(options);
+            ComputeServerImpl server = new ComputeServerImpl(parser.getServerCapacity(), 
+                    parser.getCorruptRate());
+            server.run(parser);
+        }
+    }
+    
 }

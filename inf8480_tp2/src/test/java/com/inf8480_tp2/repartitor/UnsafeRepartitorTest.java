@@ -1,7 +1,11 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.inf8480_tp2.repartitor;
 
 import com.inf8480_tp2.directory.NameDirectoryImpl;
-import com.inf8480_tp2.server.ComputeServerImpl;
 import com.inf8480_tp2.server.ComputeServerRunner;
 import com.inf8480_tp2.shared.parser.OptionParser;
 import java.io.File;
@@ -20,12 +24,12 @@ import static org.junit.Assert.*;
 
 /**
  * This test is an integration test for the whole system. It uses a repartitor
- * and comptuation servers in safe mode. It runs several operations file on
+ * and comptuation servers in unsafe mode. It runs several operations file on
  * an increasing number of servers.
  * 
  * @author Baptiste Rigondaud & Loïc Poncet
  */
-public class SafeRepartitorTest {
+public class UnsafeRepartitorTest {
     
     private static final int dirPort = 5025;
     
@@ -49,7 +53,7 @@ public class SafeRepartitorTest {
             + File.separator
             + "operations";
 
-    public SafeRepartitorTest() {
+    public UnsafeRepartitorTest() {
         this.repartitors = new HashMap();
         this.runner = new ComputeServerRunner();
     }
@@ -63,7 +67,7 @@ public class SafeRepartitorTest {
         try {
             LocateRegistry.createRegistry(dirPort);
         } catch (RemoteException ex) {
-            System.err.println("Cannot start the safe integration test: the"
+            System.err.println("Cannot start the unsafe integration test: the"
                     + " registry cannot be created.");
         }
         nameDir.run(new OptionParser(new String[]{"--portDir", ""+dirPort}));
@@ -84,7 +88,8 @@ public class SafeRepartitorTest {
                 "--portDir",
                 ""+dirPort,
                 "--operations",
-                "operations" + File.separator + file.getName()
+                "operations" + File.separator + file.getName(),
+                "--unsafe"
             })));
         }
     }
@@ -118,8 +123,8 @@ public class SafeRepartitorTest {
      */
     @Test
     public void oneServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(1, dirPort, 5030);
-        runAllOperations();   
+        runner.runUnsafeServers(1, dirPort, 5030);
+        runAllOperations();
     }
     
     /**
@@ -127,7 +132,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void twoServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(2, dirPort, 5030);
+        runner.runUnsafeServers(2, dirPort, 5030);
         runAllOperations();
     }
     
@@ -136,7 +141,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void threeServerTest() throws UnknownHostException, RemoteException {
-        runner.runSafeServers(3, dirPort, 5030);
+        runner.runUnsafeServers(3, dirPort, 5030);
         runAllOperations();
     }
 }
