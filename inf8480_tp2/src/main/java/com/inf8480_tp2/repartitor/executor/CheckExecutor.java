@@ -42,17 +42,15 @@ public class CheckExecutor extends Executor {
         }
         Response storedComputation = responseReceived.get(task);
         responseReceived.remove(task);
-        if(!response.isSuccessful() || !storedComputation.isSuccessful()) {
-            // Either out of capacity or bad credentials.
-            uncompileTask(task);
-            return;
+        if(response.isSuccessful() && storedComputation.isSuccessful()) {
+            ComputeResponse stored = (ComputeResponse)storedComputation;
+            ComputeResponse computation = (ComputeResponse)response;
+            if(stored.getResult() == computation.getResult()) {
+                getRepartitor().computeResult(computation.getResult());
+                return;
+            }
         }
-        ComputeResponse stored = (ComputeResponse)storedComputation;
-        ComputeResponse computation = (ComputeResponse)response;
-        if(stored.getResult() == computation.getResult())
-            getRepartitor().computeResult(computation.getResult());
-        else
-            uncompileTask(task);
+        uncompileTask(task);
     }
     
 }
