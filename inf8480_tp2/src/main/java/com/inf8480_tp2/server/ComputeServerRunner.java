@@ -52,7 +52,7 @@ public class ComputeServerRunner {
     
     /**
      * Starts unsafe computation servers. The malicious rate of each server
-     * is random (a float number between 0 and 100).
+     * is random (number between 1 and 80).
      * 
      * @param number Number of servers to create.
      * @param dirPort The directory port.
@@ -62,7 +62,7 @@ public class ComputeServerRunner {
     public void runUnsafeServers(int number, int dirPort, int serverStartingPort) throws UnknownHostException {
         for(int i = 0; i < number; i+=1) {
             int serverPort = 2*i+serverStartingPort;
-            int rate = ThreadLocalRandom.current().nextInt(1, 101);
+            int rate = ThreadLocalRandom.current().nextInt(1, 81);
             int capacity = ThreadLocalRandom.current().nextInt(1, 21);
             String[] options = {
                 "--ipDir",

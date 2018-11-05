@@ -119,7 +119,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void oneServerTest() throws UnknownHostException, RemoteException {
-        System.out.println("Running one server:");
+        System.out.println("\nRunning one normal server:");
         runner.runSafeServers(1, dirPort, 5007);
         runAllOperations();
     }
@@ -129,7 +129,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void twoServerTest() throws UnknownHostException, RemoteException {
-        System.out.println("Running two servers:");
+        System.out.println("\nRunning two normal servers:");
         runner.runSafeServers(2, dirPort, 5010);
         runAllOperations();
     }
@@ -139,7 +139,7 @@ public class SafeRepartitorTest {
      */
     @Test
     public void threeServerTest() throws UnknownHostException, RemoteException {
-        System.out.println("Running three servers:");
+        System.out.println("\nRunning three normal servers:");
         runner.runSafeServers(3, dirPort, 5015);
         runAllOperations();
     }
