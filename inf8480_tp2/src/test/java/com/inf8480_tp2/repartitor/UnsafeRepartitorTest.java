@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  */
 public class UnsafeRepartitorTest {
     
-    private static final int dirPort = 5010;
+    private static final int dirPort = 5020;
     
     /**
      * The name directory used in during the tests.
@@ -125,7 +125,7 @@ public class UnsafeRepartitorTest {
     @Test
     public void twoServerTest() throws UnknownHostException, RemoteException {
         System.out.println("Running two malicious servers:");
-        runner.runUnsafeServers(2, dirPort, 5030);
+        runner.runUnsafeServers(2, dirPort, 5022);
         runAllOperations();
     }
     
@@ -135,7 +135,7 @@ public class UnsafeRepartitorTest {
     @Test
     public void threeServerTest() throws UnknownHostException, RemoteException {
         System.out.println("Running three malicious servers:");
-        runner.runUnsafeServers(3, dirPort, 5030);
+        runner.runUnsafeServers(3, dirPort, 5026);
         runAllOperations();
     }
 }

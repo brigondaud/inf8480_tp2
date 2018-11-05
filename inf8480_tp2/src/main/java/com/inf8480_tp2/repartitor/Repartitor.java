@@ -187,8 +187,7 @@ public class Repartitor {
      * @param server The server on which a task can be submitted.
      */
     private void submitTask(ServerInfo server) {
-        setServerState(server, true); // TODO: move this
-                
+        setServerState(server, true);
         if(!options.isSafeMode()) {
             // Check if a task needs to be verified.
             if(!nonVerifiedTask.isEmpty())
