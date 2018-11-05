@@ -58,12 +58,6 @@ public abstract class Executor {
                 try {
                     ComputeServer server = getRepartitor().getComputationServers().get(serverInfo);
                     Response resp = server.executeOperation(task, repartitor.LOGIN, repartitor.PASSWORD);
-                    /*
-                    if (resp.isSuccessful())
-                        System.out.println("Response received : " + ((ComputeResponse)resp).getResult());
-                    else
-                        System.out.println("Invalid response");
-                        */
                     onReceive(task, resp, serverInfo);
                     // The server is now available to compute a new task.
                     getRepartitor().setServerState(serverInfo, false);
