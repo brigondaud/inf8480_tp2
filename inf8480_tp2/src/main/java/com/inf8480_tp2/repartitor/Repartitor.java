@@ -152,7 +152,6 @@ public class Repartitor {
         }
         executor.setThreadNumber(computationServers.size());
         while(!isDone) {
-            
             // If the task is not done but there is no more servers available.
             if(computationServers.isEmpty()) {
                 System.err.println("ERROR: no more computation server is available."
@@ -170,7 +169,7 @@ public class Repartitor {
                 }
                 submitTask(server.getKey());
             }
-            
+
             // Check for termination.
             if(serversDone()) {
                 if(operationBuffer.isEmpty() && nonVerifiedTask.isEmpty()) {
@@ -191,7 +190,7 @@ public class Repartitor {
         setServerState(server, true);
         if(!options.isSafeMode()) {
             // Check if a task needs to be verified.
-            if(!nonVerifiedTask.isEmpty())
+            if(!nonVerifiedTask.isEmpty()) {
                 if(!(taskScheduled.get(nonVerifiedTask.peek()).equals(server))) {
                     // Remove the task from unverified and submit it if the
                     // server is not the creator of the task.
@@ -200,21 +199,32 @@ public class Repartitor {
                     executor.submit(task, server);
                     return;
                 }
-            // If no task needs to be verified, go on with creating a new task 
-            // since the server is ready to compute.
+            }
         }
+        // If no task needs to be verified, go on with creating a new task 
+        // since the server is ready to compute.
+        if(!operationBuffer.isEmpty()) {
+            Operation task = createNewTask(server);
+            // Set the task to be verified if unsafe mode.
+            if(!options.isSafeMode())
+                pushToVerification(task, server);
 
+            executor.submit(task, server);
+        }
+    }
+    
+    /**
+     * Creates a new task and submit it to the given server.
+     * 
+     * @param server The server for which a task is created.
+     */
+    private Operation createNewTask(ServerInfo server) {
         TaskFactory taskFactory = new TaskFactory();
         // Size the task according to the safety option.
         int capacity = options.isSafeMode() ? getMinimumServerCapacity(): server.getCapacity();
         taskFactory.setStrategy(new OptimalRepartitionStrategy(capacity));
         Task task = taskFactory.buildTask(operationBuffer);
-
-        // Set the task to be verified if unsafe mode.
-        if(!options.isSafeMode())
-            pushToVerification(task, server);
-        
-        executor.submit(task, server);
+        return task;
     }
     
     /**
@@ -381,7 +391,7 @@ public class Repartitor {
      * @param task The task to send to verification.
      * @param server The server which created and thus submitted the task once.
      */
-    private void pushToVerification(Task task, ServerInfo server) {
+    private void pushToVerification(Operation task, ServerInfo server) {
         taskScheduled.put(task, server);
         nonVerifiedTask.add(task);
     }
