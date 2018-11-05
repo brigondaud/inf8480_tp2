@@ -169,7 +169,9 @@ public class Repartitor {
                 }
                 submitTask(server.getKey());
             }
-
+            
+            //System.out.println(options.getOperationFilePath()+" "+operationBuffer.size() +" " + nonVerifiedTask.size());
+            
             // Check for termination.
             if(serversDone()) {
                 if(operationBuffer.isEmpty() && nonVerifiedTask.isEmpty()) {
@@ -187,7 +189,6 @@ public class Repartitor {
      * @param server The server on which a task can be submitted.
      */
     private void submitTask(ServerInfo server) {
-        setServerState(server, true);
         if(!options.isSafeMode()) {
             // Check if a task needs to be verified.
             if(!nonVerifiedTask.isEmpty()) {
@@ -196,6 +197,7 @@ public class Repartitor {
                     // server is not the creator of the task.
                     Operation task = nonVerifiedTask.poll();
                     taskScheduled.remove(task);
+                    setServerState(server, true);
                     executor.submit(task, server);
                     return;
                 }
@@ -208,7 +210,7 @@ public class Repartitor {
             // Set the task to be verified if unsafe mode.
             if(!options.isSafeMode())
                 pushToVerification(task, server);
-
+            setServerState(server, true);
             executor.submit(task, server);
         }
     }
