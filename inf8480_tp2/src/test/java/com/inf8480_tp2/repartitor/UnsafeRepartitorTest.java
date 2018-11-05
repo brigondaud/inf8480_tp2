@@ -118,21 +118,13 @@ public class UnsafeRepartitorTest {
                     repartitor.getResult());
         }
     }
-
-    /**
-     * Computes the operations with only one computation server.
-     */
-    @Test
-    public void oneServerTest() throws UnknownHostException, RemoteException {
-        runner.runUnsafeServers(1, dirPort, 5030);
-        runAllOperations();
-    }
     
     /**
      * Computes the operations with two computation servers.
      */
     @Test
     public void twoServerTest() throws UnknownHostException, RemoteException {
+        System.out.println("Running two malicious servers:");
         runner.runUnsafeServers(2, dirPort, 5030);
         runAllOperations();
     }
@@ -142,6 +134,7 @@ public class UnsafeRepartitorTest {
      */
     @Test
     public void threeServerTest() throws UnknownHostException, RemoteException {
+        System.out.println("Running three malicious servers:");
         runner.runUnsafeServers(3, dirPort, 5030);
         runAllOperations();
     }

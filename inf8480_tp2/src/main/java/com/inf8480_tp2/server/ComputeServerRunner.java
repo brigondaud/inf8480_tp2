@@ -41,6 +41,8 @@ public class ComputeServerRunner {
                 LocateRegistry.createRegistry(serverPort);
             } catch (RemoteException ex) {
                 System.err.println("Server runner: cannot create RMI registry");
+                ex.printStackTrace();
+                System.exit(1);
             }
             OptionParser parser = new OptionParser(options);
             ComputeServerImpl server = new ComputeServerImpl(parser.getServerCapacity());
@@ -79,6 +81,8 @@ public class ComputeServerRunner {
                 LocateRegistry.createRegistry(serverPort);
             } catch (RemoteException ex) {
                 System.err.println("Server runner: cannot create RMI registry");
+                ex.printStackTrace();
+                System.exit(1);
             }
             OptionParser parser = new OptionParser(options);
             ComputeServerImpl server = new ComputeServerImpl(parser.getServerCapacity(), 
