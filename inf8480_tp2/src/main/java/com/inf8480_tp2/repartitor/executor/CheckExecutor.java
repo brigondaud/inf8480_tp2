@@ -40,7 +40,8 @@ public class CheckExecutor extends Executor {
             responseReceived.put(task, response);
             return;
         }
-        if(!response.isSuccessful()) {
+        Response storedComputation = responseReceived.get(task);
+        if(!response.isSuccessful() || !storedComputation.isSuccessful()) {
             // Either out of capacity or bad credentials.
             uncompileTask(task);
             // If one server had already sent a response, we ignore it since
@@ -49,10 +50,9 @@ public class CheckExecutor extends Executor {
             responseReceived.remove(task);
             return;
         }
-        // Comparison of the two responses for the task.
-        ComputeResponse storedComputation = (ComputeResponse)responseReceived.get(task);
+        ComputeResponse stored = (ComputeResponse)storedComputation;
         ComputeResponse computation = (ComputeResponse)response;
-        if(storedComputation.getResult() == computation.getResult())
+        if(stored.getResult() == computation.getResult())
             getRepartitor().computeResult(computation.getResult());
         else
             uncompileTask(task);
