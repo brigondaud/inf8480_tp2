@@ -87,6 +87,7 @@ public class ComputeServerRunner {
             OptionParser parser = new OptionParser(options);
             ComputeServerImpl server = new ComputeServerImpl(parser.getServerCapacity(), 
                     parser.getCorruptRate());
+            System.out.println("Corrupt rate: " + parser.getCorruptRate());
             server.run(parser);
         }
     }

@@ -113,6 +113,7 @@ public class UnsafeRepartitorTest {
     private void runAllOperations() throws RemoteException {
         for(File file: repartitors.keySet()) {
             Repartitor repartitor = repartitors.get(file);
+            System.out.println("Testing " + file.getName());
             repartitor.run();
             assertEquals(Integer.parseInt(file.getName().split("-")[1]),
                     repartitor.getResult());
