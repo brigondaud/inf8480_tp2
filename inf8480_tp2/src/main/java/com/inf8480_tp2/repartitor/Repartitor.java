@@ -146,6 +146,10 @@ public class Repartitor {
         NameDirectory nameDir = connectNameDirectory();
         nameDir.registerDispatcher(LOGIN, PASSWORD);
         setComputationServers(nameDir);
+        if(computationServers.isEmpty()) {
+            System.err.println("Error: no computation server is available !");
+            System.exit(1);
+        }
         executor.setThreadNumber(computationServers.size());
         while(!isDone) {
             
@@ -183,8 +187,7 @@ public class Repartitor {
      * @param server The server on which a task can be submitted.
      */
     private void submitTask(ServerInfo server) {
-        setServerState(server, true); // TODO: move this
-                
+        setServerState(server, true);
         if(!options.isSafeMode()) {
             // Check if a task needs to be verified.
             if(!nonVerifiedTask.isEmpty())
