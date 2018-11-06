@@ -65,6 +65,9 @@ public abstract class Executor {
                     // Uncompile the task on network error to reschedule the
                     // operations in the task.
                     uncompileTask(task);
+                    // In case of non verified mode to avoid uncompiling
+                    // the task two times
+                    getRepartitor().removeFromVerification(task, serverInfo);
                     // Remove the server from the repartitor.
                     getRepartitor().removeServer(serverInfo);
                 }

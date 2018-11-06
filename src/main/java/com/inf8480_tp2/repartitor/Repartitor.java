@@ -20,7 +20,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -401,5 +400,17 @@ public class Repartitor {
     public void pushToVerification(Operation task, ServerInfo server) {
         taskScheduled.put(task, server);
         nonVerifiedTask.add(task);
+    }
+    
+    /**
+     * Removes a task from verification process. In case of server crash
+     * in non safe mode.
+     * 
+     * @param task The task to remove from verification.
+     * @param server The server which created and thus submitted the task once.
+     */
+    public void removeFromVerification(Operation task, ServerInfo server) {
+        taskScheduled.remove(task);
+        nonVerifiedTask.remove(task);
     }
 }
