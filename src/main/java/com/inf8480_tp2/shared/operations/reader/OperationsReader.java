@@ -48,7 +48,6 @@ public class OperationsReader {
                         break;
                     default:
                         // Do nothing.
-                        // TODO: throw exception instead ?
                 }
                 line = reader.readLine();
             }
