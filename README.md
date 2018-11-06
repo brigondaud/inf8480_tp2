@@ -1,6 +1,6 @@
 # INF8480 - TP2 - Services distribués et gestion des pannes
 
-Ce README détaille les étapes pour pouvoir exécuter le système.
+Ce README détaille les étapes pour pouvoir exécuter le système de calcul distribué .
 
 ## Prise en main
 
@@ -10,9 +10,14 @@ Installer [Apache Maven](https://maven.apache.org/install.html).
 
 ### Installation
 
-Pour compiler le projet et les exécutables pour lancer le service de répertoire de noms, les serveurs de calcul et le répartiteur:
+Pour compiler le projet et les exécutables et lancer les tests :
 ```
 mvn package
+```
+
+Pour simplement compiler le projet et les exécutables :
+```
+mvn package -Dmaven.test.skip=true
 ```
 
 ## Exécution des tests
@@ -22,32 +27,65 @@ Pour exécuter les tests:
 mvn test
 ```
 
+### Ajout de fichiers de tests
+
+TODO
+
 ## Utilisation
 
-Avancer de pouvoir lancer les serveurs, après avoir compilé le projet, lancer Java RMI à la racine du projet en éxecutant:
+### Lancer le répertoire de nom
+
+Avant de pouvoir lancer les serveurs, après avoir compilé le projet, démarrer un rmiregistry sur un port disponible sur votre machine en exécutant à la racine du projet :
 ```
 rmiregistry -J-Djava.rmi.server.codebase=file:target/tp2.jar numero_port &
 ```
 
-Dans un premier temps, lancer le serveur de répertoire de noms:
+Exécuter ensuite la commande suivante afin de lancer le répertoire de nom :
 ```
-./directory.sh [options]
-```
-
-Puis lancer le/les serveur(s) de calcul:
-```
-./server.sh [options]
+./directory.sh --portDir <port>
 ```
 
-### OPTIONS
+#### OPTIONS
 ```
---unsafe (server, specify that the server is corrupted)
---corrupt rate (server, specify the corrupt rate of the server, must be between 0 and 100)
---ipDir ip ([server, repartitor], specify the IP address of the name directory)
---portDir port ([server, directory], specify on which port the name directory should be/is running)
---portServer port (server, specify on which port the server should be running)
---capacity C (server, specify the capacity of the compute server)
---operations file_path (repartitor, Specify the RELATIVE file path of the file containing the operations)
+--portDir port (Spécifie le numéro de port sur lequel le rmiregistry démarré précédemment est en train de s'exécuter.)
+```
+Il est important de noter que le port ayant pour numéro la valeur immédiatement supérieure à celle utilisée par le rmiregistry sera désormais utilisé sur la machine courante.
+
+### Lancer les serveurs de calcul
+
+Après avoir lancé le service de répertoire de nom, il est possible de lancer un ou plusieurs serveurs en lancant pour chacun d'eux un rmiregistry sur un port non utilisé :
+```
+rmiregistry -J-Djava.rmi.server.codebase=file:target/tp2.jar numero_port &
+```
+Puis en exécutant la commande suivante :
+```
+./server.sh [--unsafe] [--corrupt <taux>] --ipDir <ip> --portDir <port> --portServer <port> --capacity <C>
+```
+
+#### OPTIONS
+```
+--unsafe (Spécifie que le serveur est malicieux, doit être accompagné de l'option --corrupt)
+--corrupt rate (Un nombre flottant entre 0 et 100 spécifiant le taux de corruption du serveur)
+--ipDir ip (L'adresse IP de la machine sur laquelle le service de répertoire de nom s'exécute)
+--portDir port (Le port sur lequel le rmiregistry du service de répertoire de nom s'exécute)
+--portServer port (Le port sur lequel le rmiregistry du serveur que l'on s'apprête à lancer s'exécute)
+--capacity C (Spécifie la capacité du serveur)
+```
+Comme précédemment, le port ayant pour numéro la valeur immédiatement supérieure à celle utilisée par le rmiregistry du serveur ne sera plus disponible sur la machine courante.
+
+### Lancer le répartiteur
+
+Pour lancer le répartiteur sur un fichier d'opérations, exécuter la commande suivante :
+```
+./repartitor.sh [--unsafe] --ipDir <ip> --portDir <port> --operations <file_path>
+```
+
+#### OPTIONS
+```
+--unsafe (Spécifie que le répartiteur doit vérifier ses résultats)
+--ipDir ip (L'adresse IP de la machine sur laquelle le service de répertoire de nom s'exécute)
+--portDir port (Le port sur lequel le rmiregistry du service de répertoire de nom s'exécute)
+--operations file_path (Le chemin RELATIF vers le fichier contenant les opérations)
 ```
 
 
