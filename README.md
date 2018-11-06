@@ -27,15 +27,30 @@ Pour exécuter les tests:
 mvn test
 ```
 
+Les tests comportent des tests unitaires ainsi que des tests d'intégration en mode sécurisé et non-sécurisé. Les tests seront exécutés pour tous les fichiers se situant dans le répertoire:
+```
+operations/
+```
+
+***Important***: Les configurations des serveurs de calcul malicieux peuvent comporter des taux de corruption élevés dans les jeux de tests. Leur temps d'exécution peut donc être très variable.
+
 ### Ajout de fichiers de tests
 
-TODO
+Un fichier de test comporte un nom au format:
+```
+operation-<result>
+```
+Où *result* désigne le résultat de la série d'opérations décrite dans le fichier de test. Celle-ci comporte des opérations du type:
+```
+prime <parameter>
+pell <parameter>
+```
 
 ## Utilisation
 
-### Lancer le répertoire de nom
+### Déploiement du répertoire de nom
 
-Avant de pouvoir lancer les serveurs, après avoir compilé le projet, démarrer un rmiregistry sur un port disponible sur votre machine en exécutant à la racine du projet :
+Avant de pouvoir déployer les serveurs, après avoir compilé le projet, démarrer un rmiregistry sur un port disponible sur votre machine en exécutant à la racine du projet :
 ```
 rmiregistry -J-Djava.rmi.server.codebase=file:target/tp2.jar numero_port &
 ```
@@ -45,15 +60,15 @@ Exécuter ensuite la commande suivante afin de lancer le répertoire de nom :
 ./directory.sh --portDir <port>
 ```
 
-#### OPTIONS
+#### Options du répertoire de nom
 ```
 --portDir port (Spécifie le numéro de port sur lequel le rmiregistry démarré précédemment est en train de s'exécuter.)
 ```
 Il est important de noter que le port ayant pour numéro la valeur immédiatement supérieure à celle utilisée par le rmiregistry sera désormais utilisé sur la machine courante.
 
-### Lancer les serveurs de calcul
+### Déploiement des serveurs de calcul
 
-Après avoir lancé le service de répertoire de nom, il est possible de lancer un ou plusieurs serveurs en lancant pour chacun d'eux un rmiregistry sur un port non utilisé :
+Après avoir déployé le service de répertoire de nom, il est possible de lancer un ou plusieurs serveurs en lancant pour chacun d'eux un rmiregistry sur un port non utilisé :
 ```
 rmiregistry -J-Djava.rmi.server.codebase=file:target/tp2.jar numero_port &
 ```
@@ -62,7 +77,7 @@ Puis en exécutant la commande suivante :
 ./server.sh [--unsafe] [--corrupt <taux>] --ipDir <ip> --portDir <port> --portServer <port> --capacity <C>
 ```
 
-#### OPTIONS
+#### Options des serveurs de calcul
 ```
 --unsafe (Spécifie que le serveur est malicieux, doit être accompagné de l'option --corrupt)
 --corrupt rate (Un nombre flottant entre 0 et 100 spécifiant le taux de corruption du serveur)
@@ -73,21 +88,20 @@ Puis en exécutant la commande suivante :
 ```
 Comme précédemment, le port ayant pour numéro la valeur immédiatement supérieure à celle utilisée par le rmiregistry du serveur ne sera plus disponible sur la machine courante.
 
-### Lancer le répartiteur
+### Exécution du répartiteur
 
 Pour lancer le répartiteur sur un fichier d'opérations, exécuter la commande suivante :
 ```
 ./repartitor.sh [--unsafe] --ipDir <ip> --portDir <port> --operations <file_path>
 ```
 
-#### OPTIONS
+#### Options du répartiteur
 ```
 --unsafe (Spécifie que le répartiteur doit vérifier ses résultats)
 --ipDir ip (L'adresse IP de la machine sur laquelle le service de répertoire de nom s'exécute)
 --portDir port (Le port sur lequel le rmiregistry du service de répertoire de nom s'exécute)
 --operations file_path (Le chemin RELATIF vers le fichier contenant les opérations)
 ```
-
 
 ## Développé avec
 
